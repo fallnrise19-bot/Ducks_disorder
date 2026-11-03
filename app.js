@@ -373,7 +373,10 @@ function stepOfficeView(step) {
 function renderRoom() {
   const view=officeView();
   const photo=$("officePhoto");
-  if(photo.src!==view.image)photo.src=view.image;
+  if(photo.dataset.viewId!==view.id){
+    photo.src=view.image;
+    photo.dataset.viewId=view.id;
+  }
   photo.alt=view.alt;
   $("officeViewTitle").textContent=view.name;
   const viewIndex=OFFICE.views.findIndex(x=>x.id===view.id);
