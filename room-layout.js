@@ -1,570 +1,729 @@
-/* Photo-calibrated views of the ONE F-011 office, including its boardroom side.
-   Multiple images are not separate rooms: they share money, purchases, dialogue.
-   Slot identifiers remain stable forever so existing purchases do not jump.
-   No unpurchased object locations are revealed in the UI. */
+/* Two real photographs, physically calibrated display areas.
+   All positions are hidden until purchased; layoutVersion 3 triggers
+   one-time respectful redistribution of older crowded saves. */
 window.OFFICE_LAYOUT = {
   "image": "axel-office.webp",
   "aspect": "16/9",
   "slots": [
     {
       "id": "desk-01",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.27,
-      "y": 0.66,
-      "view": "desk"
+      "x": 0.245,
+      "y": 0.625,
+      "size": 0.038,
+      "maxHeight": 0.11
     },
     {
       "id": "desk-02",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.32,
-      "y": 0.63,
-      "view": "desk"
+      "x": 0.285,
+      "y": 0.605,
+      "size": 0.038,
+      "maxHeight": 0.11
     },
     {
       "id": "desk-03",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.36,
-      "y": 0.69,
-      "view": "desk"
+      "x": 0.325,
+      "y": 0.598,
+      "size": 0.038,
+      "maxHeight": 0.11
     },
     {
       "id": "desk-04",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.41,
-      "y": 0.72,
-      "view": "desk"
+      "x": 0.255,
+      "y": 0.68,
+      "size": 0.047,
+      "maxHeight": 0.14
     },
     {
       "id": "desk-05",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.48,
-      "y": 0.71,
-      "view": "desk"
+      "x": 0.305,
+      "y": 0.69,
+      "size": 0.046,
+      "maxHeight": 0.14
     },
     {
       "id": "desk-06",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.53,
-      "y": 0.72,
-      "view": "desk"
+      "x": 0.355,
+      "y": 0.715,
+      "size": 0.05,
+      "maxHeight": 0.14
     },
     {
       "id": "desk-07",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.29,
-      "y": 0.71,
-      "view": "desk"
+      "x": 0.415,
+      "y": 0.738,
+      "size": 0.05,
+      "maxHeight": 0.14
     },
     {
       "id": "desk-08",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.36,
-      "y": 0.57,
-      "view": "desk"
+      "x": 0.468,
+      "y": 0.755,
+      "size": 0.053,
+      "maxHeight": 0.14
     },
     {
       "id": "desk-09",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.42,
-      "y": 0.62,
-      "view": "desk"
+      "x": 0.555,
+      "y": 0.704,
+      "size": 0.04,
+      "maxHeight": 0.12
     },
     {
       "id": "desk-10",
+      "view": "desk",
       "zone": "desk",
-      "x": 0.5,
-      "y": 0.65,
-      "view": "desk"
+      "x": 0.592,
+      "y": 0.68,
+      "size": 0.04,
+      "maxHeight": 0.12
     },
     {
       "id": "counter-01",
+      "view": "desk",
       "zone": "counter",
       "x": 0.37,
-      "y": 0.405,
-      "view": "desk"
+      "y": 0.397,
+      "size": 0.033,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-02",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.42,
+      "x": 0.41,
       "y": 0.399,
-      "view": "desk"
+      "size": 0.033,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-03",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.47,
-      "y": 0.396,
-      "view": "desk"
+      "x": 0.45,
+      "y": 0.398,
+      "size": 0.034,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-04",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.52,
-      "y": 0.397,
-      "view": "desk"
+      "x": 0.5,
+      "y": 0.399,
+      "size": 0.034,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-05",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.58,
-      "y": 0.397,
-      "view": "desk"
+      "x": 0.55,
+      "y": 0.399,
+      "size": 0.034,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-06",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.63,
+      "x": 0.6,
       "y": 0.402,
-      "view": "desk"
+      "size": 0.034,
+      "maxHeight": 0.09
     },
     {
       "id": "counter-07",
+      "view": "desk",
       "zone": "counter",
-      "x": 0.69,
-      "y": 0.406,
-      "view": "desk"
+      "x": 0.65,
+      "y": 0.4,
+      "size": 0.034,
+      "maxHeight": 0.09
     },
     {
       "id": "shelf-01",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.765,
-      "y": 0.31,
-      "view": "desk"
+      "x": 0.778,
+      "y": 0.321,
+      "size": 0.025,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-02",
+      "view": "desk",
       "zone": "shelf",
       "x": 0.835,
-      "y": 0.33,
-      "view": "desk"
+      "y": 0.322,
+      "size": 0.028,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-03",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.898,
-      "y": 0.33,
-      "view": "desk"
+      "x": 0.897,
+      "y": 0.32,
+      "size": 0.025,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-04",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.762,
-      "y": 0.405,
-      "view": "desk"
+      "x": 0.774,
+      "y": 0.43,
+      "size": 0.029,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-05",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.834,
-      "y": 0.428,
-      "view": "desk"
+      "x": 0.83,
+      "y": 0.43,
+      "size": 0.027,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-06",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.907,
-      "y": 0.422,
-      "view": "desk"
+      "x": 0.9,
+      "y": 0.43,
+      "size": 0.027,
+      "maxHeight": 0.085
     },
     {
       "id": "shelf-07",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.764,
-      "y": 0.53,
-      "view": "desk"
+      "x": 0.776,
+      "y": 0.54,
+      "size": 0.031,
+      "maxHeight": 0.09
     },
     {
       "id": "shelf-08",
+      "view": "desk",
       "zone": "shelf",
       "x": 0.841,
-      "y": 0.525,
-      "view": "desk"
+      "y": 0.54,
+      "size": 0.029,
+      "maxHeight": 0.09
     },
     {
       "id": "shelf-09",
+      "view": "desk",
       "zone": "shelf",
-      "x": 0.905,
-      "y": 0.53,
-      "view": "desk"
+      "x": 0.9,
+      "y": 0.54,
+      "size": 0.029,
+      "maxHeight": 0.09
     },
     {
       "id": "cabinet-01",
+      "view": "desk",
       "zone": "cabinet",
-      "x": 0.27,
-      "y": 0.458,
-      "view": "desk"
+      "x": 0.275,
+      "y": 0.451,
+      "size": 0.027,
+      "maxHeight": 0.08
     },
     {
       "id": "cabinet-02",
+      "view": "desk",
       "zone": "cabinet",
-      "x": 0.31,
-      "y": 0.456,
-      "view": "desk"
+      "x": 0.315,
+      "y": 0.448,
+      "size": 0.028,
+      "maxHeight": 0.08
     },
     {
       "id": "cabinet-03",
+      "view": "desk",
       "zone": "cabinet",
-      "x": 0.34,
-      "y": 0.46,
-      "view": "desk"
+      "x": 0.35,
+      "y": 0.45,
+      "size": 0.028,
+      "maxHeight": 0.08
     },
     {
       "id": "wall-01",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.135,
-      "y": 0.19,
-      "view": "desk"
+      "x": 0.4,
+      "y": 0.187,
+      "size": 0.055,
+      "maxHeight": 0.14
     },
     {
       "id": "wall-02",
+      "view": "desk",
       "zone": "wall",
       "x": 0.32,
-      "y": 0.24,
-      "view": "desk"
+      "y": 0.143,
+      "size": 0.055,
+      "maxHeight": 0.14
     },
     {
       "id": "wall-03",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.42,
-      "y": 0.18,
-      "view": "desk"
+      "x": 0.5,
+      "y": 0.17,
+      "size": 0.056,
+      "maxHeight": 0.14
     },
     {
       "id": "wall-04",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.535,
-      "y": 0.19,
-      "view": "desk"
+      "x": 0.55,
+      "y": 0.18,
+      "size": 0.056,
+      "maxHeight": 0.14
     },
     {
       "id": "wall-05",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.646,
-      "y": 0.185,
-      "view": "desk"
+      "x": 0.66,
+      "y": 0.17,
+      "size": 0.054,
+      "maxHeight": 0.13
     },
     {
       "id": "wall-06",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.738,
-      "y": 0.17,
-      "view": "desk"
+      "x": 0.735,
+      "y": 0.155,
+      "size": 0.051,
+      "maxHeight": 0.13
     },
     {
       "id": "wall-07",
+      "view": "desk",
       "zone": "wall",
-      "x": 0.77,
-      "y": 0.235,
-      "view": "desk"
+      "x": 0.928,
+      "y": 0.19,
+      "size": 0.06,
+      "maxHeight": 0.14
     },
     {
       "id": "floor-01",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.73,
-      "y": 0.8,
-      "view": "desk"
+      "x": 0.725,
+      "y": 0.79,
+      "size": 0.065,
+      "maxHeight": 0.16
     },
     {
       "id": "floor-02",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.79,
-      "y": 0.78,
-      "view": "desk"
+      "x": 0.805,
+      "y": 0.83,
+      "size": 0.068,
+      "maxHeight": 0.17
     },
     {
       "id": "floor-03",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.84,
-      "y": 0.86,
-      "view": "desk"
+      "x": 0.87,
+      "y": 0.83,
+      "size": 0.066,
+      "maxHeight": 0.17
     },
     {
       "id": "floor-04",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.9,
-      "y": 0.8,
-      "view": "desk"
+      "x": 0.93,
+      "y": 0.9,
+      "size": 0.07,
+      "maxHeight": 0.17
     },
     {
       "id": "floor-05",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.95,
-      "y": 0.88,
-      "view": "desk"
+      "x": 0.79,
+      "y": 0.947,
+      "size": 0.069,
+      "maxHeight": 0.17
     },
     {
       "id": "floor-06",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.69,
-      "y": 0.9,
-      "view": "desk"
+      "x": 0.7,
+      "y": 0.91,
+      "size": 0.07,
+      "maxHeight": 0.17
     },
     {
       "id": "floor-07",
+      "view": "desk",
       "zone": "floor",
-      "x": 0.16,
-      "y": 0.87,
-      "view": "desk"
+      "x": 0.15,
+      "y": 0.875,
+      "size": 0.064,
+      "maxHeight": 0.16
     },
     {
       "id": "chair-01",
+      "view": "desk",
       "zone": "chair",
       "x": 0.23,
-      "y": 0.895,
-      "view": "desk"
+      "y": 0.85,
+      "size": 0.08,
+      "maxHeight": 0.14
     },
     {
       "id": "chair-02",
+      "view": "desk",
       "zone": "chair",
-      "x": 0.36,
-      "y": 0.91,
-      "view": "desk"
+      "x": 0.355,
+      "y": 0.87,
+      "size": 0.08,
+      "maxHeight": 0.14
     },
     {
       "id": "chair-03",
+      "view": "desk",
       "zone": "chair",
       "x": 0.495,
-      "y": 0.47,
-      "view": "desk"
+      "y": 0.49,
+      "size": 0.045,
+      "maxHeight": 0.11
     },
     {
       "id": "board-table-01",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.5,
-      "y": 0.5
+      "x": 0.507,
+      "y": 0.464,
+      "size": 0.024,
+      "maxHeight": 0.07
     },
     {
       "id": "board-table-02",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.55,
-      "y": 0.53
+      "x": 0.555,
+      "y": 0.478,
+      "size": 0.026,
+      "maxHeight": 0.08
     },
     {
       "id": "board-table-03",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.46,
-      "y": 0.56
+      "x": 0.474,
+      "y": 0.5,
+      "size": 0.029,
+      "maxHeight": 0.08
     },
     {
       "id": "board-table-04",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.55,
-      "y": 0.61
+      "x": 0.51,
+      "y": 0.54,
+      "size": 0.033,
+      "maxHeight": 0.09
     },
     {
       "id": "board-table-05",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.38,
-      "y": 0.64
+      "x": 0.449,
+      "y": 0.57,
+      "size": 0.039,
+      "maxHeight": 0.11
     },
     {
       "id": "board-table-06",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.49,
-      "y": 0.7
+      "x": 0.54,
+      "y": 0.6,
+      "size": 0.04,
+      "maxHeight": 0.11
     },
     {
       "id": "board-table-07",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.37,
-      "y": 0.75
+      "x": 0.425,
+      "y": 0.63,
+      "size": 0.044,
+      "maxHeight": 0.12
     },
     {
       "id": "board-table-08",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.45,
-      "y": 0.8
+      "x": 0.49,
+      "y": 0.68,
+      "size": 0.048,
+      "maxHeight": 0.13
     },
     {
       "id": "board-table-09",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.55,
-      "y": 0.81
+      "x": 0.565,
+      "y": 0.69,
+      "size": 0.048,
+      "maxHeight": 0.13
     },
     {
       "id": "board-table-10",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.35,
-      "y": 0.83
+      "x": 0.4,
+      "y": 0.745,
+      "size": 0.051,
+      "maxHeight": 0.14
     },
     {
       "id": "board-table-11",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.63,
-      "y": 0.53
+      "x": 0.492,
+      "y": 0.792,
+      "size": 0.057,
+      "maxHeight": 0.15
     },
     {
       "id": "board-table-12",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.49,
-      "y": 0.6
+      "x": 0.333,
+      "y": 0.744,
+      "size": 0.052,
+      "maxHeight": 0.14
     },
     {
       "id": "board-table-13",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.4,
-      "y": 0.59
+      "x": 0.402,
+      "y": 0.85,
+      "size": 0.055,
+      "maxHeight": 0.15
     },
     {
       "id": "board-table-14",
       "view": "boardroom",
       "zone": "desk",
-      "x": 0.33,
-      "y": 0.7
+      "x": 0.568,
+      "y": 0.82,
+      "size": 0.054,
+      "maxHeight": 0.15
     },
     {
       "id": "board-console-01",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.75,
-      "y": 0.34
+      "x": 0.674,
+      "y": 0.348,
+      "size": 0.03,
+      "maxHeight": 0.075
     },
     {
       "id": "board-console-02",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.78,
-      "y": 0.34
+      "x": 0.71,
+      "y": 0.345,
+      "size": 0.028,
+      "maxHeight": 0.077
     },
     {
       "id": "board-console-03",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.77,
-      "y": 0.385
+      "x": 0.745,
+      "y": 0.341,
+      "size": 0.029,
+      "maxHeight": 0.075
     },
     {
       "id": "board-console-04",
       "view": "boardroom",
       "zone": "shelf",
-      "x": 0.755,
-      "y": 0.33
+      "x": 0.68,
+      "y": 0.34,
+      "size": 0.029,
+      "maxHeight": 0.075
     },
     {
       "id": "board-console-05",
       "view": "boardroom",
       "zone": "shelf",
-      "x": 0.79,
-      "y": 0.335
+      "x": 0.73,
+      "y": 0.34,
+      "size": 0.029,
+      "maxHeight": 0.075
     },
     {
       "id": "board-wall-01",
       "view": "boardroom",
       "zone": "wall",
-      "x": 0.84,
-      "y": 0.17
+      "x": 0.82,
+      "y": 0.165,
+      "size": 0.05,
+      "maxHeight": 0.13
     },
     {
       "id": "board-wall-02",
       "view": "boardroom",
       "zone": "wall",
-      "x": 0.9,
-      "y": 0.22
+      "x": 0.89,
+      "y": 0.205,
+      "size": 0.053,
+      "maxHeight": 0.13
     },
     {
       "id": "board-wall-03",
       "view": "boardroom",
       "zone": "wall",
-      "x": 0.95,
-      "y": 0.18
+      "x": 0.962,
+      "y": 0.172,
+      "size": 0.04,
+      "maxHeight": 0.13
     },
     {
       "id": "board-wall-04",
       "view": "boardroom",
       "zone": "wall",
-      "x": 0.69,
-      "y": 0.17
+      "x": 0.67,
+      "y": 0.16,
+      "size": 0.058,
+      "maxHeight": 0.12
     },
     {
       "id": "board-wall-05",
       "view": "boardroom",
       "zone": "wall",
-      "x": 0.65,
-      "y": 0.13
+      "x": 0.72,
+      "y": 0.165,
+      "size": 0.05,
+      "maxHeight": 0.12
     },
     {
       "id": "board-floor-01",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.86,
-      "y": 0.84
+      "x": 0.856,
+      "y": 0.82,
+      "size": 0.065,
+      "maxHeight": 0.16
     },
     {
       "id": "board-floor-02",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.96,
-      "y": 0.83
+      "x": 0.94,
+      "y": 0.83,
+      "size": 0.07,
+      "maxHeight": 0.16
     },
     {
       "id": "board-floor-03",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.92,
-      "y": 0.63
+      "x": 0.923,
+      "y": 0.635,
+      "size": 0.054,
+      "maxHeight": 0.13
     },
     {
       "id": "board-floor-04",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.13,
-      "y": 0.83
+      "x": 0.095,
+      "y": 0.8,
+      "size": 0.066,
+      "maxHeight": 0.16
     },
     {
       "id": "board-floor-05",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.94,
-      "y": 0.92
+      "x": 0.96,
+      "y": 0.94,
+      "size": 0.07,
+      "maxHeight": 0.17
     },
     {
       "id": "board-chair-01",
       "view": "boardroom",
       "zone": "chair",
-      "x": 0.69,
-      "y": 0.72
+      "x": 0.705,
+      "y": 0.72,
+      "size": 0.07,
+      "maxHeight": 0.15
     },
     {
       "id": "board-chair-02",
       "view": "boardroom",
       "zone": "chair",
-      "x": 0.73,
-      "y": 0.62
+      "x": 0.77,
+      "y": 0.61,
+      "size": 0.07,
+      "maxHeight": 0.14
     },
     {
       "id": "board-chair-03",
       "view": "boardroom",
       "zone": "chair",
-      "x": 0.26,
-      "y": 0.95
+      "x": 0.27,
+      "y": 0.94,
+      "size": 0.075,
+      "maxHeight": 0.16
     },
     {
       "id": "board-chair-04",
       "view": "boardroom",
       "zone": "chair",
-      "x": 0.74,
-      "y": 0.54
+      "x": 0.754,
+      "y": 0.515,
+      "size": 0.052,
+      "maxHeight": 0.13
     },
     {
       "id": "board-chair-05",
       "view": "boardroom",
       "zone": "chair",
       "x": 0.32,
-      "y": 0.47
+      "y": 0.46,
+      "size": 0.055,
+      "maxHeight": 0.12
     }
   ],
   "itemZones": {
@@ -741,9 +900,9 @@ window.OFFICE_LAYOUT = {
   },
   "itemSlots": {
     "low-signal-neon": [
+      "wall-01",
       "wall-03",
-      "wall-04",
-      "wall-05",
+      "wall-06",
       "board-wall-01",
       "board-wall-02",
       "board-wall-03"
@@ -751,7 +910,6 @@ window.OFFICE_LAYOUT = {
     "mira-selfie": [
       "wall-01",
       "wall-03",
-      "wall-05",
       "board-wall-04",
       "board-console-01"
     ],
@@ -759,11 +917,21 @@ window.OFFICE_LAYOUT = {
       "chair-01",
       "chair-02",
       "floor-01",
-      "floor-02",
-      "chair-03",
       "board-chair-01",
       "board-chair-03",
-      "board-floor-03"
+      "board-floor-01"
+    ],
+    "portrait": [
+      "wall-02",
+      "wall-03",
+      "wall-05",
+      "board-wall-04"
+    ],
+    "duck-throne": [
+      "wall-01",
+      "wall-05",
+      "board-wall-01",
+      "board-wall-04"
     ]
   },
   "views": [
@@ -779,5 +947,6 @@ window.OFFICE_LAYOUT = {
       "image": "axel-office-boardroom.webp",
       "alt": "Axel's long boardroom table with tall windows, leather chairs and stone feature wall"
     }
-  ]
+  ],
+  "layoutVersion": 3
 };
