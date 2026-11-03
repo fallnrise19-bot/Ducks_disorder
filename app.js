@@ -326,10 +326,16 @@ function renderShop() {
   const cat=$("catalog");cat.replaceChildren();
   for(const item of DATA.items) {
     const owned=state.owned.includes(item.id);
-    const el=node("div","item");
-    const info=node("div","");
-    info.append(node("strong","",item.emoji+" "+item.name),
+    const el=node("div","item shop-item");
+    const info=node("div","shop-info");
+    const thumbnail=node("img","shop-thumb");
+    thumbnail.src="collectibles/"+item.asset;
+    thumbnail.alt="";
+    thumbnail.loading="lazy";
+    const copy=node("div","shop-copy");
+    copy.append(node("strong","",item.name),
       node("small","",(DATA.tiers[item.tier-1]||"Collectible")+" • "+(owned?"Owned":item.cost+" coins")));
+    info.append(thumbnail,copy);
     const actions=node("div","shop-actions");
     const goal=node("button","",state.wishlist===item.id?"★ Goal":"☆ Wish");
     goal.setAttribute("aria-label","Choose "+item.name+" as savings goal");
@@ -345,10 +351,17 @@ function renderRoom() {
   for(const item of DATA.items.filter(item=>state.owned.includes(item.id))) {
     const spot=PLACE.spot(state.placements[item.id]);
     if(!spot)continue;
-    const prop=node("span","prop prop-"+spot.zone+(item.id===justPurchased?" prop-arrival":""),item.emoji);
+    const prop=node("span","prop prop-"+spot.zone+(item.id===justPurchased?" prop-arrival":""));
+    const image=node("img","prop-art");
+    image.src="collectibles/"+item.asset;
+    image.alt=item.name;
+    image.draggable=false;
+    image.loading="lazy";
+    prop.append(image);
     prop.title=item.name;
     prop.style.left=(spot.x*100)+"%";
     prop.style.top=(spot.y*100)+"%";
+    prop.style.width=(item.width||8)+"%";
     prop.setAttribute("role","img");
     prop.setAttribute("aria-label",item.name);
     prop.addEventListener("click",()=>flash(item.name));
