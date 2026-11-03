@@ -83,3 +83,18 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 .room-tools{display:flex;justify-content:flex-end;margin:8px 0}
 .room-tools button{background:#373348;border:1px solid #685579;padding:9px 12px;font-size:13px}
 @media(prefers-reduced-motion:reduce){.room .prop-arrival,.room .prop-arrival::after{animation:none}}
+
+/* Each shop item and room placement now uses its actual offline PNG asset,
+   not platform emoji. All assets have a transparent background. */
+.shop-item{gap:9px;min-height:75px}
+.shop-info{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.shop-copy{min-width:0;flex:1}
+.shop-copy strong{line-height:1.24;font-size:14px}
+.shop-copy small{font-size:11px;line-height:1.4}
+.shop-thumb{width:63px;height:63px;object-fit:contain;flex:none;border-radius:11px;background:radial-gradient(circle,#4b4863 0,#25293c 76%);padding:4px;filter:drop-shadow(0 2px 2px #0008)}
+.room .prop{box-sizing:content-box;height:auto;min-width:16px;min-height:14px;max-width:32%;border:0;display:block;background:none;text-align:center;transform:translate(-50%,-87%);font-size:0}
+.room .prop-wall{transform:translate(-50%,-50%)}
+.room .prop-art{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(1px 3px 2px #000b);-webkit-user-drag:none;user-select:none}
+.room .prop-arrival{animation:office-item-arrival 900ms cubic-bezier(.18,1.2,.25,1) both}
+.room .prop-arrival::after{content:'✦';position:absolute;top:-10px;right:-6px;color:#fcd968;font-size:13px;text-shadow:0 0 10px #e58ffc;pointer-events:none}
+@media(max-width:460px){.shop-thumb{width:46px;height:48px}.shop-item .shop-actions{gap:4px}.shop-item .shop-actions button{font-size:11px;padding:8px}}
