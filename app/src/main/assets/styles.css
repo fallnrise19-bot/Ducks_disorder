@@ -98,3 +98,16 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 .room .prop-arrival{animation:office-item-arrival 900ms cubic-bezier(.18,1.2,.25,1) both}
 .room .prop-arrival::after{content:'✦';position:absolute;top:-10px;right:-6px;color:#fcd968;font-size:13px;text-shadow:0 0 10px #e58ffc;pointer-events:none}
 @media(max-width:460px){.shop-thumb{width:46px;height:48px}.shop-item .shop-actions{gap:4px}.shop-item .shop-actions button{font-size:11px;padding:8px}}
+
+/* Axel's increasingly unamused commentary, immediately below the real office photo. */
+.axel-reaction{margin:14px 0 12px;padding:15px 18px 16px;border-radius:15px;background:linear-gradient(125deg,#191e2c 0%,#282232 100%);border:1px solid #65506d;border-left:4px solid #b78bd0;box-shadow:0 5px 18px #0003}
+.axel-reaction-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.axel-reaction-author{font-size:12px;letter-spacing:.19em;font-weight:900;color:#e5c7f4}
+.axel-reaction-subject{font-size:11px;text-align:right;color:#b7aabe;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:72%;letter-spacing:.03em}
+.axel-reaction-text{margin:0;font-size:clamp(15px,3.8vw,18px);font-weight:500;line-height:1.6;color:#f2e9f5;font-style:italic}
+.axel-reaction-text::before{content:'“';color:#cf9bdf;font-weight:900;font-size:22px;margin-right:3px}
+.axel-reaction-text::after{content:'”';color:#cf9bdf;font-weight:900;font-size:22px;margin-left:3px}
+.axel-reaction-new{animation:axel-reaction-appears 550ms ease-out both}
+@keyframes axel-reaction-appears{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.axel-reaction-new{animation:none}}
+@media(max-width:460px){.axel-reaction{padding:13px 14px}.axel-reaction-subject{max-width:68%}}
