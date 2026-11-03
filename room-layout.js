@@ -1,6 +1,5 @@
 /* Two real photographs, physically calibrated display areas.
-   All positions are hidden until purchased; layoutVersion 3 triggers
-   one-time respectful redistribution of older crowded saves. */
+   Layout v3 triggers one-time redistribution to end overcrowded old saves. */
 window.OFFICE_LAYOUT = {
   "image": "axel-office.webp",
   "aspect": "16/9",
@@ -549,8 +548,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-console-01",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.674,
-      "y": 0.348,
+      "x": 0.728,
+      "y": 0.359,
       "size": 0.03,
       "maxHeight": 0.075
     },
@@ -558,8 +557,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-console-02",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.71,
-      "y": 0.345,
+      "x": 0.757,
+      "y": 0.357,
       "size": 0.028,
       "maxHeight": 0.077
     },
@@ -567,8 +566,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-console-03",
       "view": "boardroom",
       "zone": "counter",
-      "x": 0.745,
-      "y": 0.341,
+      "x": 0.782,
+      "y": 0.361,
       "size": 0.029,
       "maxHeight": 0.075
     },
@@ -576,8 +575,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-console-04",
       "view": "boardroom",
       "zone": "shelf",
-      "x": 0.68,
-      "y": 0.34,
+      "x": 0.739,
+      "y": 0.356,
       "size": 0.029,
       "maxHeight": 0.075
     },
@@ -585,8 +584,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-console-05",
       "view": "boardroom",
       "zone": "shelf",
-      "x": 0.73,
-      "y": 0.34,
+      "x": 0.775,
+      "y": 0.359,
       "size": 0.029,
       "maxHeight": 0.075
     },
@@ -639,8 +638,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-floor-01",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.856,
-      "y": 0.82,
+      "x": 0.795,
+      "y": 0.83,
       "size": 0.065,
       "maxHeight": 0.16
     },
@@ -648,8 +647,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-floor-02",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.94,
-      "y": 0.83,
+      "x": 0.855,
+      "y": 0.855,
       "size": 0.07,
       "maxHeight": 0.16
     },
@@ -657,8 +656,8 @@ window.OFFICE_LAYOUT = {
       "id": "board-floor-03",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.923,
-      "y": 0.635,
+      "x": 0.88,
+      "y": 0.735,
       "size": 0.054,
       "maxHeight": 0.13
     },
@@ -675,7 +674,7 @@ window.OFFICE_LAYOUT = {
       "id": "board-floor-05",
       "view": "boardroom",
       "zone": "floor",
-      "x": 0.96,
+      "x": 0.856,
       "y": 0.94,
       "size": 0.07,
       "maxHeight": 0.17
