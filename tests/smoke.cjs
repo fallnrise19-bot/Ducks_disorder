@@ -45,7 +45,7 @@ const window={};
 const context={window,document,localStorage,Date,Math,Number,JSON,Array,Object,String,Set,
   setTimeout:()=>0,clearTimeout:()=>{}};
 vm.runInNewContext(data,context,{filename:"data.js"});
-const run=()=>vm.runInNewContext(app,context,{filename:"app.js"});
+const run=()=>vm.runInNewContext(app,{...context},{filename:"app.js"});
 const state=()=>JSON.parse(memory.get("ducks-disorder-v1"));
 run();
 assert.equal(window.GAME_DATA.items.length,20);
