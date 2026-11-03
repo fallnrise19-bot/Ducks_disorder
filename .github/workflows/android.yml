@@ -31,6 +31,10 @@ jobs:
         run: |
           unzip -oq assets/office-collectibles-v1.zip -d .
           unzip -oq assets/kitchen-collectibles-v1.zip -d .
+          unzip -oq assets/dining-collectibles-v1.zip -d .
+          test -s app/src/main/assets/facility-dining.webp
+          test -s app/src/main/assets/dining/dining_queen_trophy.png
+          test -s app/src/main/assets/dining/open_pizza_box.png
           test -s app/src/main/assets/facility-kitchen.webp
           test -s app/src/main/assets/kitchen/kitchen_queen_trophy.png
           test -s app/src/main/assets/kitchen/pizza_open.png
