@@ -30,6 +30,10 @@ jobs:
       - name: Unpack real collectible PNG artwork
         run: |
           unzip -oq assets/office-collectibles-v1.zip -d .
+          unzip -oq assets/kitchen-collectibles-v1.zip -d .
+          test -s app/src/main/assets/facility-kitchen.webp
+          test -s app/src/main/assets/kitchen/kitchen_queen_trophy.png
+          test -s app/src/main/assets/kitchen/pizza_open.png
           test -s app/src/main/assets/collectibles/ask_axel_mug.png
           test -s app/src/main/assets/collectibles/mira_middle_finger.png
       - name: Smoke test packing and rewards
