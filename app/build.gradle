@@ -1,14 +1,15 @@
 plugins { id 'com.android.application' }
 
-// Android won't accept an update with a lower versionCode. Give every GitHub
-// Actions run a newer versionCode without requiring manual edits each build.
-// The applicationId MUST stay unchanged so updates preserve local app data.
+// Stable application ID + increasing version code + stable signing certificate
+// are all required for Android to install an APK over an existing installation.
 def ciRunNumber = System.getenv('GITHUB_RUN_NUMBER')
 def buildNumber = ciRunNumber ? Integer.parseInt(ciRunNumber) : 1
+def ciSigningFile = new File(System.getProperty('user.home'), '.android/ducks-disorder-debug.keystore')
 
 android {
     namespace 'ca.creativepixels.ducksdisorder'
     compileSdk 35
+
     defaultConfig {
         applicationId 'ca.creativepixels.ducksdisorder'
         minSdk 26
@@ -16,6 +17,26 @@ android {
         versionCode 1000 + buildNumber
         versionName "0.5.0.${buildNumber}"
     }
+
+    // Android Studio may use its own local debug key. CI MUST use the cached,
+    // explicit key below, otherwise each ephemeral GitHub runner would produce
+    // APKs that cannot be installed over previous test builds.
+    signingConfigs {
+        debug {
+            if (System.getenv('GITHUB_ACTIONS') == 'true') {
+                storeFile ciSigningFile
+                storePassword 'android'
+                keyAlias 'androiddebugkey'
+                keyPassword 'android'
+            }
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
