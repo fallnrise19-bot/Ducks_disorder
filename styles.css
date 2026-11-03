@@ -126,3 +126,57 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 .room-viewport{touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain}
 .room-viewport:focus-visible{outline:2px solid #ac8dcb;outline-offset:3px}
 @media(max-width:460px){.office-view-nav{gap:5px}.office-view-arrow{min-width:43px}.office-view-dots{gap:3px}.office-zoom{font-size:11px;padding:8px 7px}.office-view-dots .office-dot{width:25px;height:25px;min-width:25px}}
+
+/* ZOOM INSPECTION FIX (Android WebView).
+   Non-zoomed: horizontal swipe switches office photographs, vertical swipe
+   scrolls the page. Zoomed: viewport itself scrolls in BOTH directions.
+   Previous pan-y touch-action prevented the WebView from moving sideways. */
+.room-viewport:not(.zoomed){
+  overflow:hidden;
+  touch-action:pan-y pinch-zoom;
+}
+.room-viewport.zoomed{
+  height:min(52vh,410px);
+  max-height:410px;
+  overflow-x:auto;
+  overflow-y:auto;
+  touch-action:pan-x pan-y;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;
+  scrollbar-color:#a58aba #242332;
+  border:1px solid #75617b;
+  background:#171823;
+}
+.room-viewport.zoomed .room{
+  width:max(960px,280%)!important;
+  max-width:none!important;
+  height:auto!important;
+  aspect-ratio:16/9;
+}
+.office-pan-tools{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px 12px;
+  padding:11px 0 8px;
+}
+.office-pan-help{
+  font-size:12px;
+  line-height:1.35;
+  color:#d2bddc;
+}
+.office-pan-buttons{
+  display:flex;
+  gap:6px;
+}
+.office-pan-buttons button{
+  background:#3f3550;
+  border:1px solid #87719d;
+  min-width:40px;
+  min-height:39px;
+  padding:8px 10px;
+  font-size:18px;
+}
+.office-pan-tools[hidden]{display:none!important}
