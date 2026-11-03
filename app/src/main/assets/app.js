@@ -6,7 +6,9 @@ const PLACE = window.OFFICE_PLACEMENT;
 const OFFICE = window.OFFICE_LAYOUT;
 const KITCHEN = window.KITCHEN_LAYOUT;
 const KPLACE = window.KITCHEN_PLACEMENT;
-const DECOR_ROOMS=[{id:"F-011",name:"Axel\'s Office",icon:"🗃️"},{id:"F-006",name:"Kitchen",icon:"🍕"}];
+const DINING = window.DINING_LAYOUT;
+const DPLACE = window.DINING_PLACEMENT;
+const DECOR_ROOMS=[{id:"F-011",name:"Axel\'s Office",icon:"🗃️"},{id:"F-006",name:"Kitchen",icon:"🍕"},{id:"F-012",name:"Dining Room",icon:"🍽️"}];
 const AXEL = window.AXEL_REACTIONS;
 const PACKING_ROOMS = Array.isArray(window.DUCKS_PACKING_ROOMS) ? [...window.DUCKS_PACKING_ROOMS].sort((a,b)=>a.priority-b.priority) : [];
 const PHASES = {now:0,final:1,moving:2};
@@ -45,7 +47,7 @@ function weekKey() {
 }
 function defaults() {
   return {
-    coins:0, totalEarned:0, owned:[], placements:{}, officeLayoutVersion:PLACE.layoutVersion, officeView:"desk", kitchenLayoutVersion:KPLACE.layoutVersion, kitchenView:"island", decorRoom:"F-011", shopRoom:"F-011", axelReactions:[], history:[], custom:[], wishlist:null,
+    coins:0, totalEarned:0, owned:[], placements:{}, officeLayoutVersion:PLACE.layoutVersion, officeView:"desk", kitchenLayoutVersion:KPLACE.layoutVersion, kitchenView:"island", diningLayoutVersion:DPLACE.layoutVersion, diningView:"dining", decorRoom:"F-011", shopRoom:"F-011", axelReactions:[], history:[], custom:[], wishlist:null,
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
@@ -64,16 +66,21 @@ function normalize(raw) {
   // with the office engine, and kitchen props only with the kitchen engine.
   const oldOfficeLayout=Number(raw.officeLayoutVersion)||0;
   const oldKitchenLayout=Number(raw.kitchenLayoutVersion)||0;
+  const oldDiningLayout=Number(raw.diningLayoutVersion)||0;
   const officeOwned=s.owned.filter(id=>DATA.items.some(item=>item.id===id&&item.room==="F-011"));
   const kitchenOwned=s.owned.filter(id=>DATA.items.some(item=>item.id===id&&item.room==="F-006"));
+  const diningOwned=s.owned.filter(id=>DATA.items.some(item=>item.id===id&&item.room==="F-012"));
   s.placements={
     ...PLACE.restore(officeOwned,raw.placements,{reflow:oldOfficeLayout<PLACE.layoutVersion}),
-    ...KPLACE.restore(kitchenOwned,raw.placements,{reflow:oldKitchenLayout<KPLACE.layoutVersion})
+    ...KPLACE.restore(kitchenOwned,raw.placements,{reflow:oldKitchenLayout<KPLACE.layoutVersion}),
+    ...DPLACE.restore(diningOwned,raw.placements,{reflow:oldDiningLayout<DPLACE.layoutVersion})
   };
   s.officeLayoutVersion=PLACE.layoutVersion;
   s.kitchenLayoutVersion=KPLACE.layoutVersion;
+  s.diningLayoutVersion=DPLACE.layoutVersion;
   s.officeView=OFFICE.views.some(v=>v.id===raw.officeView)?raw.officeView:OFFICE.views[0].id;
   s.kitchenView=KITCHEN.views.some(v=>v.id===raw.kitchenView)?raw.kitchenView:KITCHEN.views[0].id;
+  s.diningView=DINING.views.some(v=>v.id===raw.diningView)?raw.diningView:DINING.views[0].id;
   s.decorRoom=DECOR_ROOMS.some(r=>r.id===raw.decorRoom)?raw.decorRoom:"F-011";
   s.shopRoom=DECOR_ROOMS.some(r=>r.id===raw.shopRoom)?raw.shopRoom:"F-011";
   s.axelReactions=AXEL.clean(raw.axelReactions,s.owned);
@@ -183,28 +190,35 @@ function claimRoutine(r) {
 function purchase(item) {
   if(state.owned.includes(item.id)||state.coins<item.cost)return;
   const kitchen=item.room==="F-006";
-  const engine=kitchen?KPLACE:PLACE;
+  const dining=item.room==="F-012";
+  const engine=dining?DPLACE:kitchen?KPLACE:PLACE;
   state.coins-=item.cost;
   state.placements[item.id]=engine.choose(item,state.placements,true);
   const location=engine.spot(state.placements[item.id]);
   state.decorRoom=item.room;
   state.shopRoom=item.room;
   if(location) {
-    if(kitchen)state.kitchenView=location.view||"island";
+    if(dining)state.diningView=location.view||DINING.views[0].id;
+    else if(kitchen)state.kitchenView=location.view||"island";
     else state.officeView=location.view||OFFICE.views[0].id;
   }
   state.owned.push(item.id);
   let reaction=AXEL.pick(item,state.owned.length,state.axelReactions);
   // Axel is aware when the kitchen becomes Mira's second trouble zone.
-  if(kitchen) reaction.text=reaction.text
+  if(kitchen||dining) reaction.text=reaction.text
     .replace(/my office/gi,"the kitchen").replace(/this office/gi,"this kitchen")
     .replace(/the office/gi,"the kitchen").replace(/my desk/gi,"the island")
     .replace(/the desk/gi,"the island").replace(/my furniture/gi,"the counters")
     .replace(/my shelves/gi,"the cupboards");
+  if(dining)reaction.text=reaction.text
+    .replace(/the kitchen/gi,"the dining room")
+    .replace(/the island/gi,"the table")
+    .replace(/the counters/gi,"the dining table")
+    .replace(/the cupboards/gi,"the shelves");
   state.axelReactions.push(reaction);
   justPurchased=item.id;
   save();show("rooms");
-  flash(item.name+" has appeared in "+(kitchen?"the kitchen":"Axel's office")+".");
+  flash(item.name+" has appeared in "+(dining?"the dining room":kitchen?"the kitchen":"Axel's office")+".");
 }
 function node(tag,cls,text) {
   const el=document.createElement(tag);
@@ -374,7 +388,7 @@ function renderShop() {
     const el=node("div","item shop-item");
     const info=node("div","shop-info");
     const thumbnail=node("img","shop-thumb");
-    thumbnail.src=(item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
+    thumbnail.src=(item.room==="F-012"?"dining/":item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
     thumbnail.alt="";
     thumbnail.loading="lazy";
     const copy=node("div","shop-copy");
@@ -392,9 +406,9 @@ function renderShop() {
   }
 }
 
-function decorLayout(){return state.decorRoom==="F-006"?KITCHEN:OFFICE;}
-function decorEngine(){return state.decorRoom==="F-006"?KPLACE:PLACE;}
-function decorViewKey(){return state.decorRoom==="F-006"?"kitchenView":"officeView";}
+function decorLayout(){return state.decorRoom==="F-012"?DINING:state.decorRoom==="F-006"?KITCHEN:OFFICE;}
+function decorEngine(){return state.decorRoom==="F-012"?DPLACE:state.decorRoom==="F-006"?KPLACE:PLACE;}
+function decorViewKey(){return state.decorRoom==="F-012"?"diningView":state.decorRoom==="F-006"?"kitchenView":"officeView";}
 function officeView(){
   const layout=decorLayout(),selected=state[decorViewKey()];
   return layout.views.find(v=>v.id===selected)||layout.views[0];
@@ -417,6 +431,11 @@ function renderRoom() {
   const layout=decorLayout(),engine=decorEngine(),view=officeView();
   const room=DECOR_ROOMS.find(r=>r.id===state.decorRoom);
   $("decorRoomHeading").textContent=room.name+" · "+room.id;
+  $("roomIntro").textContent=room.id==="F-011"?
+    "Swipe between the two office views. New objects can land anywhere Mira finds a suitable spot.":
+    room.id==="F-006"?
+    "Kitchen island view. Every purchase takes a suitable secret spot in the kitchen.":
+    "Dining room. The table and shelving are ready for Mira's questionable dinner parties.";
   const picker=$("decorRoomPicker");picker.replaceChildren();
   for(const option of DECOR_ROOMS){
     const b=node("button",option.id===state.decorRoom?"selected":"",option.icon+" "+option.name);
@@ -451,7 +470,7 @@ function renderRoom() {
     if(!spot || (spot.view||layout.views[0].id)!==view.id)continue;
     const prop=node("span","prop prop-"+spot.zone+(item.id===justPurchased?" prop-arrival":""));
     const image=node("img","prop-art");
-    image.src=(item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
+    image.src=(item.room==="F-012"?"dining/":item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
     image.alt=item.name;image.draggable=false;image.loading="lazy";
     prop.append(image);prop.title=item.name;
     prop.style.left=(spot.x*100)+"%";prop.style.top=(spot.y*100)+"%";
