@@ -22,11 +22,41 @@
   </nav>
 
   <section id="tasks" class="panel">
-    <h2>Earn your chaos</h2>
-    <p class="muted">Finish a box, or earn coins one quarter at a time. No streaks, no penalties.</p>
+    <h2>Tell me what to pack</h2>
+    <p class="muted">Your actual rooms, prioritized jobs, and clear instructions. No ordinary cleaning mixed into packing.</p>
+    <div class="card mission-card">
+      <div class="house-card-top">
+        <div>
+          <span class="eyebrow">CURRENT ROOM</span>
+          <h3 id="houseRoomTitle">🗄️ Basement</h3>
+          <p id="houseRoomStatus" class="muted">Priority 1 · start now</p>
+        </div>
+        <button id="chooseRoomBtn" class="choose-for-me">Choose for me</button>
+      </div>
+      <p id="houseRoomDetail" class="muted"></p>
+      <div id="houseNotes" class="house-notes"></div>
+      <div class="house-picker" id="housePicker" role="group" aria-label="Choose a packing room"></div>
+      <div class="house-mission">
+        <div class="mission-top"><span id="missionRoom" class="eyebrow"></span><span id="missionReward" class="mission-pay"></span></div>
+        <h3 id="missionName">Open and assess one accessible tote</h3>
+        <p id="missionDetail" class="muted"></p>
+        <span id="missionFlag" class="mission-flag"></span>
+      </div>
+      <button id="houseDoneButton" class="primary wide">✓ Completed mission</button>
+      <div class="two-actions">
+        <button id="houseSkipBtn" class="outline">↻ Different job</button>
+        <button id="houseDismissBtn" class="quiet">Not applicable</button>
+      </div>
+      <p id="houseMissionNote" class="muted"></p>
+      <button id="restoreHiddenBtn" class="quiet small" hidden>Restore hidden jobs in this room</button>
+      <p class="packing-boundary">Packing and basement consolidation earn coins here. Sweeping, dishes and routine clutter belong in Daily Life.</p>
+    </div>
+
     <div class="card">
-      <h3>📦 Box packing</h3>
-      <label for="boxSize" class="field-label">Choose your box size</label>
+      <span class="eyebrow">BOX PROGRESS · SEPARATE REWARD</span>
+      <h3>Working on a moving box?</h3>
+      <p class="muted">You can log box progress alongside your room missions. Four quarters pay exactly the same as one full box.</p>
+      <label for="boxSize" class="field-label">Choose your current box size</label>
       <div class="box-controls">
         <select id="boxSize" aria-label="Box size">
           <option value="small">Small · 50 coins</option>
@@ -48,13 +78,16 @@
         <button id="fullBox" class="primary">Finished this box</button>
       </div>
     </div>
-    <h3>Other packing wins</h3>
-    <div id="taskList"></div>
-    <form id="customTask">
-      <input id="taskName" maxlength="70" placeholder="Add your own packing task..." required aria-label="New packing task">
-      <button type="submit">Add</button>
-    </form>
-    <p class="muted">Tasks completed today: <strong id="done">0</strong></p>
+    <div class="card secondary-card">
+      <h3>Personal packing jobs</h3>
+      <p class="muted">Add a one-off packing job that isn't covered in your room list.</p>
+      <div id="taskList"></div>
+      <form id="customTask">
+        <input id="taskName" maxlength="70" placeholder="Add your own packing job..." required aria-label="New packing task">
+        <button type="submit">Add</button>
+      </form>
+      <p class="muted">Claims logged today: <strong id="done">0</strong></p>
+    </div>
   </section>
 
   <section id="life" class="panel hidden">
@@ -89,6 +122,7 @@
 
   <section id="progress" class="panel hidden">
     <h2>Your actual progress</h2>
+    <div class="card"><h3>Moving timeline</h3><p class="muted">Early packing is the default. Unlock later tasks only when you are ready, keeping the family’s everyday essentials available.</p><div class="phase-picker" id="phasePicker"></div><p class="muted" id="phaseNote"></p><div class="stats" style="margin-top:12px"><div class="stat"><strong id="roomMissionsDone">0</strong><span>Unique packing jobs tried</span></div><div class="stat"><strong id="freedBins">0</strong><span>Empty totes freed</span></div></div></div>
     <p class="muted">Every little bit counts. Miss a day? Nothing gets taken away.</p>
     <div class="stats">
       <div class="stat"><strong id="statBoxes">0</strong><span>Boxes packed</span></div>
@@ -121,6 +155,7 @@
 </main>
 <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
 <script src="data.js"></script>
+<script src="packing-rooms.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
