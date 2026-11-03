@@ -544,24 +544,39 @@ function bind() {
       viewport.scrollTop+dy
     ));
   }
-  $("roomZoomBtn").addEventListener("click",()=>{
-    zoomed=!zoomed;
+  function setZoom(enabled) {
+    zoomed=!!enabled;
     viewport.classList.toggle("zoomed",zoomed);
     office.classList.toggle("zoomed",zoomed);
     $("officePanTools").hidden=!zoomed;
+    $("closeupToolbar").hidden=!zoomed;
+    $("closeupExitFixed").hidden=!zoomed;
     $("roomZoomBtn").textContent=zoomed?"↩ Normal view":"🔎 Look closer";
     $("roomZoomBtn").setAttribute("aria-pressed",String(zoomed));
     viewport.setAttribute("aria-label",zoomed?
-      "Enlarged office image. Drag in any direction, or use the four directional buttons.":
-      "Office photo. Swipe left or right to change room views.");
+      "Enlarged image. Drag in any direction or use the four arrow controls. Exit close-up is pinned at the top right.":
+      "Room photo. Swipe left or right to change views.");
     if(zoomed) {
-      // Begin in the middle, with scroll room to look both left and right,
-      // and up and down. Physical finger drag is browser-native.
       viewport.scrollLeft=Math.max(0,(office.scrollWidth-viewport.clientWidth)/2);
       viewport.scrollTop=Math.max(0,(office.scrollHeight-viewport.clientHeight)/2);
     } else {
       viewport.scrollLeft=0;
       viewport.scrollTop=0;
+    }
+  }
+  function exitZoom() {
+    if(!zoomed)return false;
+    setZoom(false);
+    return true;
+  }
+  $("roomZoomBtn").addEventListener("click",()=>setZoom(!zoomed));
+  $("closeupExitTop").addEventListener("click",exitZoom);
+  $("closeupExitFixed").addEventListener("click",exitZoom);
+  window.ducks.exitZoom=exitZoom;
+  document.addEventListener("keydown",event=>{
+    if(zoomed&&(event.key==="Escape"||event.key==="Backspace")) {
+      exitZoom();
+      event.preventDefault();
     }
   });
   $("officePanLeft").addEventListener("click",()=>panOffice(-150,0));
