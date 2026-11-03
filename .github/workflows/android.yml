@@ -4,6 +4,12 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+
+# Do not let two builds race to create different test signing keys.
+concurrency:
+  group: ducks-disorder-android-signing
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,24 +29,52 @@ jobs:
           gradle-version: '8.9'
       - name: Smoke test packing and rewards
         run: node tests/smoke.cjs
-      # A new debug keystore each run produces a DIFFERENT app signature.
-      # Restore the one used by previous builds, and FAIL instead of silently
-      # creating another incompatible APK if the signing cache disappears.
-      - name: Restore existing test signing key
+
+      - name: Restore persistent test signing key
+        id: signing-key
         uses: actions/cache/restore@v4
         with:
-          path: ~/.android/debug.keystore
-          key: ducks-disorder-debug-keystore-v1
-          fail-on-cache-miss: true
-      - name: Verify consistent test signing key
+          path: ~/.android/ducks-disorder-debug.keystore
+          key: ducks-disorder-android-debug-signing-v2
+
+      # This creates the signing key once, on the first build using this
+      # workflow. Subsequent builds restore that SAME key from Actions cache.
+      - name: Initialize signing key when missing
+        if: steps.signing-key.outputs.cache-hit != 'true'
         run: |
-          test -s "$HOME/.android/debug.keystore" || { echo "::error::Saved signing key missing. Stopping to protect install-over updates."; exit 1; }
-          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey >/dev/null
-      - name: Verify Android package version
+          mkdir -p "$HOME/.android"
+          keytool -genkeypair -noprompt \
+            -keystore "$HOME/.android/ducks-disorder-debug.keystore" \
+            -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 3072 \
+            -validity 36500 \
+            -dname "CN=Ducks and Disorder Debug, O=Creative Pixels, C=CA"
+
+      - name: Validate signing key and pin certificate
         run: |
-          echo "Build run number: $GITHUB_RUN_NUMBER"
-          grep -q "applicationId 'ca.creativepixels.ducksdisorder'" app/build.gradle
-      
+          KEY="$HOME/.android/ducks-disorder-debug.keystore"
+          test -s "$KEY" || { echo "::error::Missing APK signing key"; exit 1; }
+          keytool -list -keystore "$KEY" -storepass android -alias androiddebugkey > /dev/null
+          FINGERPRINT="$(keytool -exportcert -alias androiddebugkey -keystore "$KEY" -storepass android | sha256sum | cut -d' ' -f1)"
+          echo "APK signing certificate sha256: $FINGERPRINT"
+          if test -f signing/ci-debug-cert.sha256; then
+            EXPECTED="$(tr -d '\n\r ' < signing/ci-debug-cert.sha256)"
+            if test "$FINGERPRINT" != "$EXPECTED"; then
+              echo "::error::Signing key changed! Refusing to build an APK that would force an uninstall."
+              exit 1
+            fi
+          else
+            echo "::notice::First signing-key bootstrap. Pin this fingerprint in signing/ci-debug-cert.sha256 after success."
+          fi
+
+      # Save immediately, before Gradle or release publishing can fail.
+      - name: Save new persistent signing key
+        if: steps.signing-key.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.android/ducks-disorder-debug.keystore
+          key: ducks-disorder-android-debug-signing-v2
+
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Upload installable APK
@@ -49,6 +83,7 @@ jobs:
           name: ducks-disorder-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
+
       - name: Publish stable direct APK download
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
