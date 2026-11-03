@@ -4,7 +4,7 @@
 
 An offline-first Android packing and daily-life motivation game. Completing real-world tasks earns Duck Coins, spent on absurd collectibles that gradually overrun Axel's office. Unlike Under the Willow, this is **not** a house-renovation game. The original House Flipper 2 room screenshots are the intended backgrounds.
 
-## Current baseline: 0.4.0 (Android version code 4)
+## Current baseline: 0.5.x (automatic GitHub build version)
 
 - Small / medium / large boxes earn **50 / 100 / 175 Duck Coins**.
 - Each box can be completed all at once or in quarters. Quarter rewards always sum to the full box value, and partially packed boxes are saved separately by size.
@@ -21,9 +21,22 @@ An offline-first Android packing and daily-life motivation game. Completing real
 
 ## Build / installation
 
-Repository Actions → a green **Android test APK** run → artifact **ducks-disorder-debug-apk** → **app-debug.apk**.
+The stable APK is published at **Releases → Ducks & Disorder - Latest Test APK → app-debug.apk** after a successful main-branch build. The Actions artifact **ducks-disorder-debug-apk** remains available too.
 
-The debug APK is for testing and is not a signed Play Store release. Android SDK 35, Java 17, Gradle 8.9, Android Gradle Plugin 8.7.3.
+The debug APK is for testing and is not a Play Store release. Android SDK 35, Java 17, Gradle 8.9, Android Gradle Plugin 8.7.3.
+
+### Installing new APKs **over** an existing test copy
+
+Android requires **all three** to install a replacement in place: the exact same application ID, the exact same signing certificate, and an APK versionCode at least as high as the installed app's (preferably higher).
+
+- Application ID stays `ca.creativepixels.ducksdisorder`. NEVER change it without intentionally starting a second app.
+- Every GitHub Actions run automatically gets a larger `versionCode` (1000 + `GITHUB_RUN_NUMBER`), so we do not reuse code 4 accidentally.
+- The debug-signing key is restored from the original `ducks-disorder-debug-keystore-v1` GitHub Actions cache. The build **fails safely** if that cache is missing instead of generating a new incompatible signature. Do not rename or delete this key/cache.
+- **Do not uninstall an existing version just to get an update.** Choose the new APK and install it normally. It should be detected as an update and retain local data as long as the signing key matches.
+- **One-time exception:** Any version already installed that was signed with a *different previous debug key* cannot be upgraded by changing only its versionCode. Android blocks this by design. Export a backup in **Stats → Share / copy backup** before changing keys or uninstalling; after installing a compatible new build, restore it under **Stats → Restore a backup**.
+- GitHub's Actions cache can be evicted. If CI reports the signing key missing, do **not** let the next run silently rotate to a new one. Instead migrate to a dedicated signing key stored securely in repository secrets. Never publish a real signing keystore into this public repository.
+
+Do not clear app data or uninstall without saving a progress backup first.
 
 Application ID: ca.creativepixels.ducksdisorder
 
