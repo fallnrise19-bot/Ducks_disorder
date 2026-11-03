@@ -66,6 +66,24 @@ assert.equal(window.GAME_DATA.items.length,40,"restored and expanded Mira-themed
 assert.equal(window.OFFICE_LAYOUT.views.length,2,"two office photos in a single room");
 assert.ok(window.OFFICE_LAYOUT.slots.filter(s=>s.view==="boardroom").length>=30,"boardroom has its own concealed prop positions");
 assert.ok(window.OFFICE_LAYOUT.slots.filter(s=>s.view==="desk").length>=40,"existing desk positions preserved");
+const placer=window.OFFICE_PLACEMENT;
+assert.equal(placer.layoutVersion,3,"layout migration version is fixed");
+const many=window.GAME_DATA.items.slice(0,18).map(i=>i.id);
+const overcrowdedSave=Object.fromEntries(many.map((id,i)=>[id,window.OFFICE_LAYOUT.slots.filter(s=>s.view==="desk")[i].id]));
+const balanced=placer.restore(many,overcrowdedSave,{reflow:true});
+assert.equal(Object.keys(balanced).length,many.length,"old save retains all purchased props");
+assert.equal(new Set(Object.values(balanced)).size,many.length,"no two objects share a slot");
+const deskItems=many.filter(id=>placer.spot(balanced[id]).view==="desk").length;
+const boardItems=many.filter(id=>placer.spot(balanced[id]).view==="boardroom").length;
+assert.ok(deskItems>4&&boardItems>4,"existing clutter is spread across both photos");
+for(let i=0;i<many.length;i++)for(let j=i+1;j<many.length;j++){
+  const a=window.GAME_DATA.items.find(x=>x.id===many[i]);
+  const b=window.GAME_DATA.items.find(x=>x.id===many[j]);
+  const collision=placer.overlap(placer.bounds(a,placer.spot(balanced[a.id])),placer.bounds(b,placer.spot(balanced[b.id])));
+  assert.ok(collision<0.01,"old props no longer visibly stack: "+a.id+" / "+b.id);
+}
+assert.deepEqual(placer.restore(many,balanced,{reflow:false}),balanced,"layout reflow happens only once");
+
 assert.equal(elements.officeViewDots.children.length,2,"navigation dots match photo count");
 assert.equal(state().officeView,"desk","existing save opens on familiar desk angle");
 elements.officeNextView.click();
@@ -189,6 +207,10 @@ const latestComment=state().axelReactions[1].text;
 run();
 assert.equal(state().coins,385-item.cost-secondItem.cost,"balance survives restart");
 assert.equal(state().placements[item.id],firstSpot,"same spot survives restart");
+assert.equal(state().officeLayoutVersion,3,"new layout version is saved");
+for(const p of elements.placements.children)
+  assert.ok(parseFloat(p.style.width)<12,"real image perspective keeps props realistically small");
+
 assert.equal(state().officeView,window.OFFICE_PLACEMENT.spot(state().placements[secondItem.id]).view,"chosen photo view survives restart");
 assert.equal(state().axelReactions.length,2,"reaction history survives restart");
 assert.equal(elements.axelReaction.hidden,false,"last comment remains visible after restarting");
