@@ -23,11 +23,24 @@ jobs:
           gradle-version: '8.9'
       - name: Smoke test packing and rewards
         run: node tests/smoke.cjs
-      - name: Retain test APK signing key across builds
-        uses: actions/cache@v4
+      # A new debug keystore each run produces a DIFFERENT app signature.
+      # Restore the one used by previous builds, and FAIL instead of silently
+      # creating another incompatible APK if the signing cache disappears.
+      - name: Restore existing test signing key
+        uses: actions/cache/restore@v4
         with:
           path: ~/.android/debug.keystore
           key: ducks-disorder-debug-keystore-v1
+          fail-on-cache-miss: true
+      - name: Verify consistent test signing key
+        run: |
+          test -s "$HOME/.android/debug.keystore" || { echo "::error::Saved signing key missing. Stopping to protect install-over updates."; exit 1; }
+          keytool -list -keystore "$HOME/.android/debug.keystore" -storepass android -alias androiddebugkey >/dev/null
+      - name: Verify Android package version
+        run: |
+          echo "Build run number: $GITHUB_RUN_NUMBER"
+          grep -q "applicationId 'ca.creativepixels.ducksdisorder'" app/build.gradle
+      
       - name: Build debug APK
         run: gradle :app:assembleDebug --no-daemon --stacktrace
       - name: Upload installable APK
