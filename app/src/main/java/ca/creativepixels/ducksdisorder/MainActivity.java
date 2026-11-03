@@ -57,6 +57,25 @@ public class MainActivity extends Activity {
         }
     }
 
+    // Android Back first exits the photo close-up instead of leaving the game.
+    // The web page reports false when no close-up is active, preserving normal
+    // system Back behavior everywhere else.
+    @SuppressWarnings("deprecation")
+    @Override public void onBackPressed() {
+        if (webView == null) {
+            super.onBackPressed();
+            return;
+        }
+        webView.evaluateJavascript(
+            "(function(){ return !!(window.ducks && window.ducks.exitZoom && window.ducks.exitZoom()); })();",
+            value -> {
+                if (!"true".equals(value) && !isFinishing()) {
+                    MainActivity.super.onBackPressed();
+                }
+            }
+        );
+    }
+
     private void notifyWeb(boolean enabled) {
         if (webView != null) {
             webView.evaluateJavascript("window.ducks && window.ducks.remindersChanged(" + enabled + ");", null);
