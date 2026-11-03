@@ -12,6 +12,18 @@
     if(!candidates.length)candidates=layout.slots.filter(slot=>allowed.includes(slot.zone)&&!used.has(slot.id));
     if(!candidates.length)candidates=layout.slots.filter(slot=>!used.has(slot.id));
     if(!candidates.length)return null;
+    // Spread NEW purchases across the office's camera views, rather than
+    // hiding everything on the desk side. Existing saved placements never move.
+    if(random && candidates.length>1 && Array.isArray(layout.views) && layout.views.length>1) {
+      const counts=new Map(layout.views.map(view=>[view.id,0]));
+      for(const id of used) {
+        const spot=slotMap.get(id);
+        if(spot)counts.set(spot.view||"desk",(counts.get(spot.view||"desk")||0)+1);
+      }
+      const least=Math.min(...candidates.map(spot=>counts.get(spot.view||"desk")||0));
+      const quieter=candidates.filter(spot=>(counts.get(spot.view||"desk")||0)===least);
+      if(quieter.length && Math.random()<0.8)candidates=quieter;
+    }
     let index;
     if(random)index=Math.floor(Math.random()*candidates.length);
     else {
