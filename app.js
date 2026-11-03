@@ -3,6 +3,7 @@
 "use strict";
 const DATA = window.GAME_DATA;
 const PLACE = window.OFFICE_PLACEMENT;
+const OFFICE = window.OFFICE_LAYOUT;
 const AXEL = window.AXEL_REACTIONS;
 const PACKING_ROOMS = Array.isArray(window.DUCKS_PACKING_ROOMS) ? [...window.DUCKS_PACKING_ROOMS].sort((a,b)=>a.priority-b.priority) : [];
 const PHASES = {now:0,final:1,moving:2};
@@ -41,7 +42,7 @@ function weekKey() {
 }
 function defaults() {
   return {
-    coins:0, totalEarned:0, owned:[], placements:{}, axelReactions:[], history:[], custom:[], wishlist:null,
+    coins:0, totalEarned:0, owned:[], placements:{}, officeView:"desk", axelReactions:[], history:[], custom:[], wishlist:null,
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
@@ -57,6 +58,7 @@ function normalize(raw) {
   s.totalEarned=validNum(raw.totalEarned===undefined?raw.earned||raw.coins:raw.totalEarned);
   s.owned=Array.isArray(raw.owned)?[...new Set(raw.owned.filter(id=>DATA.items.some(item=>item.id===id)))]:[];
   s.placements=PLACE.restore(s.owned,raw.placements);
+  s.officeView=OFFICE.views.some(v=>v.id===raw.officeView)?raw.officeView:OFFICE.views[0].id;
   s.axelReactions=AXEL.clean(raw.axelReactions,s.owned);
   s.history=Array.isArray(raw.history)?raw.history.filter(h=>h&&typeof h.id==="string").slice(-250):[];
   s.custom=Array.isArray(raw.custom)?raw.custom.filter(t=>t&&typeof t.name==="string"&&t.name.trim()).slice(0,50).map(t=>({
@@ -165,6 +167,9 @@ function purchase(item) {
   if(state.owned.includes(item.id)||state.coins<item.cost)return;
   state.coins-=item.cost;
   state.placements[item.id]=PLACE.choose(item,new Set(Object.values(state.placements)),true);
+  // Open whichever photo contains the surprise, including the boardroom side.
+  const newSpot=PLACE.spot(state.placements[item.id]);
+  if(newSpot)state.officeView=newSpot.view||OFFICE.views[0].id;
   state.owned.push(item.id);
   // The last comment stays visible after reopening; every comment ID is consumed once.
   state.axelReactions.push(AXEL.pick(item,state.owned.length,state.axelReactions));
@@ -350,11 +355,43 @@ function renderShop() {
     actions.append(goal,buy);el.append(info,actions);cat.append(el);
   }
 }
+
+function officeView() {
+  return OFFICE.views.find(view=>view.id===state.officeView)||OFFICE.views[0];
+}
+function selectOfficeView(id) {
+  if(!OFFICE.views.some(view=>view.id===id))return;
+  state.officeView=id;
+  save();
+  renderRoom();
+}
+function stepOfficeView(step) {
+  const index=OFFICE.views.findIndex(view=>view.id===state.officeView);
+  const next=(Math.max(0,index)+step+OFFICE.views.length)%OFFICE.views.length;
+  selectOfficeView(OFFICE.views[next].id);
+}
 function renderRoom() {
+  const view=officeView();
+  const photo=$("officePhoto");
+  if(photo.src!==view.image)photo.src=view.image;
+  photo.alt=view.alt;
+  $("officeViewTitle").textContent=view.name;
+  const viewIndex=OFFICE.views.findIndex(x=>x.id===view.id);
+  $("officeViewCount").textContent=(viewIndex+1)+" of "+OFFICE.views.length+" views";
+  const dots=$("officeViewDots");dots.replaceChildren();
+  for(const candidate of OFFICE.views) {
+    const dot=node("button",candidate.id===view.id?"office-dot active":"office-dot","●");
+    dot.title=candidate.name;
+    dot.setAttribute("type","button");
+    dot.setAttribute("aria-label","Show "+candidate.name);
+    dot.setAttribute("aria-pressed",String(candidate.id===view.id));
+    dot.addEventListener("click",()=>selectOfficeView(candidate.id));
+    dots.append(dot);
+  }
   const board=$("placements");board.replaceChildren();
   for(const item of DATA.items.filter(item=>state.owned.includes(item.id))) {
     const spot=PLACE.spot(state.placements[item.id]);
-    if(!spot)continue;
+    if(!spot || (spot.view||OFFICE.views[0].id)!==view.id)continue;
     const prop=node("span","prop prop-"+spot.zone+(item.id===justPurchased?" prop-arrival":""));
     const image=node("img","prop-art");
     image.src="collectibles/"+item.asset;
@@ -373,8 +410,10 @@ function renderRoom() {
   }
   $("roomCount").textContent=state.owned.length+" / "+DATA.items.length+" collectibles placed";
   const latest=DATA.items.find(i=>i.id===justPurchased);
-  $("roomReveal").hidden=!latest;
-  $("roomReveal").textContent=latest?"New arrival: "+latest.name+". Can you spot it? 👀":"";
+  const latestSpot=latest?PLACE.spot(state.placements[latest.id]):null;
+  const latestHere=!!(latestSpot&&(latestSpot.view||OFFICE.views[0].id)===view.id);
+  $("roomReveal").hidden=!latestHere;
+  $("roomReveal").textContent=latestHere?"New arrival: "+latest.name+". Can you spot it? 👀":"";
   const comment=state.axelReactions[state.axelReactions.length-1];
   const reactionBox=$("axelReaction");
   reactionBox.hidden=!comment;
@@ -433,10 +472,37 @@ function bind() {
   $("quarterBox").addEventListener("click",()=>claimBox(false));
   $("fullBox").addEventListener("click",()=>claimBox(true));
   $("anotherPrompt").addEventListener("click",()=>{state.promptIndex++;save();render();});
+  let zoomed=false;
   $("roomZoomBtn").addEventListener("click",()=>{
-    const expanded=$("room").classList.toggle("zoomed");
-    $("roomZoomBtn").textContent=expanded?"↩ Normal view":"🔎 Look closer";
-    $("roomZoomBtn").setAttribute("aria-pressed",String(!!expanded));
+    zoomed=!zoomed;
+    $("room").classList.toggle("zoomed",zoomed);
+    $("roomZoomBtn").textContent=zoomed?"↩ Normal view":"🔎 Look closer";
+    $("roomZoomBtn").setAttribute("aria-pressed",String(zoomed));
+  });
+  $("officePrevView").addEventListener("click",()=>stepOfficeView(-1));
+  $("officeNextView").addEventListener("click",()=>stepOfficeView(1));
+  // Touch navigation works with any number of room photos. When zoomed, allow
+  // horizontal panning within the photo instead of hijacking that gesture.
+  let officeTouch=null;
+  const viewport=$("roomViewport");
+  viewport.addEventListener("touchstart",event=>{
+    if(event.touches && event.touches.length===1)
+      officeTouch={x:event.touches[0].clientX,y:event.touches[0].clientY};
+    else officeTouch=null;
+  },{passive:true});
+  viewport.addEventListener("touchend",event=>{
+    if(!officeTouch)return;
+    const finger=event.changedTouches&&event.changedTouches[0];
+    if(!finger)return;
+    const dx=finger.clientX-officeTouch.x,dy=finger.clientY-officeTouch.y;
+    officeTouch=null;
+    if(!zoomed&&Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.3)
+      stepOfficeView(dx<0?1:-1);
+  },{passive:true});
+  viewport.addEventListener("touchcancel",()=>{officeTouch=null;});
+  viewport.addEventListener("keydown",event=>{
+    if(event.key==="ArrowLeft"){stepOfficeView(-1);event.preventDefault();}
+    if(event.key==="ArrowRight"){stepOfficeView(1);event.preventDefault();}
   });
   $("chooseRoomBtn").addEventListener("click",chooseHouseForMe);
   $("houseDoneButton").addEventListener("click",completeHouseMission);
