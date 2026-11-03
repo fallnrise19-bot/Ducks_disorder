@@ -2,6 +2,8 @@
 (function () {
 "use strict";
 const DATA = window.GAME_DATA;
+const PACKING_ROOMS = Array.isArray(window.DUCKS_PACKING_ROOMS) ? [...window.DUCKS_PACKING_ROOMS].sort((a,b)=>a.priority-b.priority) : [];
+const PHASES = {now:0,final:1,moving:2};
 const KEY = "ducks-disorder-v1";
 const BRIDGE = window.DucksBridge || null;
 const $ = id => document.getElementById(id);
@@ -41,6 +43,7 @@ function defaults() {
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
+    houseRoom:"basement", houseCursor:{}, houseDone:{}, houseSkipped:{}, phase:"now", binsFreed:0,
     lifeDaily:{key:dayKey(),water:0,food:0,dishes:0,dishwasher:0},
     lifeWeekly:{key:weekKey(),laundry:0,garbage:0}
   };
@@ -63,6 +66,16 @@ function normalize(raw) {
     s.boxCounts[size]=validNum(raw.boxCounts&&raw.boxCounts[size]);
   }
   s.promptIndex=validNum(raw.promptIndex);
+  s.houseRoom=PACKING_ROOMS.some(r=>r.id===raw.houseRoom)?raw.houseRoom:"basement";
+  s.phase=Object.prototype.hasOwnProperty.call(PHASES,raw.phase)?raw.phase:"now";
+  s.binsFreed=validNum(raw.binsFreed);
+  const missionIds=new Set(PACKING_ROOMS.flatMap(r=>r.missions.map(m=>m.id)));
+  if(raw.houseDone && typeof raw.houseDone==="object")
+    for(const id of missionIds)s.houseDone[id]=Math.min(10000,validNum(raw.houseDone[id]));
+  if(raw.houseSkipped && typeof raw.houseSkipped==="object")
+    for(const id of missionIds)if(raw.houseSkipped[id])s.houseSkipped[id]=true;
+  if(raw.houseCursor && typeof raw.houseCursor==="object")
+    for(const room of PACKING_ROOMS)s.houseCursor[room.id]=validNum(raw.houseCursor[room.id]);
   s.view=["tasks","life","rooms","shop","progress"].includes(raw.view)?raw.view:"tasks";
   if (raw.lifeDaily && raw.lifeDaily.key===dayKey()) {
     for(const r of ROUTINES.filter(t=>t.period==="day"))
@@ -156,7 +169,105 @@ function node(tag,cls,text) {
   if(text!==undefined)el.textContent=text;
   return el;
 }
+
+/* User-specific prioritized room plan, ported from Under the Willow's house.js. */
+function currentHouseRoom() { return PACKING_ROOMS.find(r=>r.id===state.houseRoom)||PACKING_ROOMS[0]||null; }
+function activeMissions(room) {
+  return room?room.missions.filter(m=>PHASES[m.phase]<=PHASES[state.phase]&&!state.houseSkipped[m.id]&&(m.repeat||!state.houseDone[m.id])):[];
+}
+function currentHouseMission() {
+  const room=currentHouseRoom(),list=activeMissions(room);
+  return list.length?list[(state.houseCursor[room.id]||0)%list.length]:null;
+}
+function pickHouse(id) {
+  if(!PACKING_ROOMS.some(r=>r.id===id))return;
+  state.houseRoom=id;save();render();
+}
+function chooseHouseForMe() {
+  const rooms=PACKING_ROOMS.filter(r=>activeMissions(r).length);
+  if(!rooms.length){flash("No available missions. You can unlock another phase under Stats.");return;}
+  // Prefer high-priority untried jobs, not an endless repeat of the first basement mission.
+  const room=rooms.find(r=>activeMissions(r).some(m=>!state.houseDone[m.id]))||rooms[0];
+  const list=activeMissions(room);
+  const idx=list.findIndex(m=>!state.houseDone[m.id]);
+  state.houseRoom=room.id;
+  state.houseCursor[room.id]=idx>=0?idx:(state.houseCursor[room.id]||0)+1;
+  save();render();flash("Recommended: "+room.name);
+}
+function completeHouseMission() {
+  const room=currentHouseRoom(),mission=currentHouseMission();
+  if(!room||!mission)return;
+  state.houseDone[mission.id]=(state.houseDone[mission.id]||0)+1;
+  if(mission.id==="b-empty")state.binsFreed++;
+  state.houseCursor[room.id]=(state.houseCursor[room.id]||0)+1;
+  addHistory("house-"+mission.id,mission.title,mission.cash,{room:room.id,missionId:mission.id});
+}
+function skipHouseMission() {
+  const room=currentHouseRoom(),list=activeMissions(room);
+  if(!room||list.length<2){flash("No other available job in this room.");return;}
+  state.houseCursor[room.id]=(state.houseCursor[room.id]||0)+1;
+  save();render();
+}
+function dismissHouseMission() {
+  const mission=currentHouseMission();
+  if(!mission)return;
+  state.houseSkipped[mission.id]=true;save();render();flash("Hidden for now. No coins awarded.");
+}
+function restoreRoomMissions() {
+  const room=currentHouseRoom();if(!room)return;
+  for(const m of room.missions)delete state.houseSkipped[m.id];
+  save();render();flash("Hidden jobs restored.");
+}
+function setPackingPhase(phase) {
+  if(!Object.prototype.hasOwnProperty.call(PHASES,phase))return;
+  state.phase=phase;save();render();
+  flash(phase==="now"?"Showing early packing.":phase==="final"?"Final-weeks jobs unlocked.":"Moving-day jobs unlocked.");
+}
+function renderHouse() {
+  const room=currentHouseRoom();if(!room)return;
+  const list=activeMissions(room),mission=currentHouseMission();
+  const unique=room.missions.filter(m=>state.houseDone[m.id]>0).length;
+  const hidden=room.missions.filter(m=>state.houseSkipped[m.id]).length;
+  $("houseRoomTitle").textContent=room.icon+" "+room.name;
+  $("houseRoomStatus").textContent=room.status+" · Priority "+room.priority;
+  $("houseRoomDetail").textContent=room.description;
+  const notes=$("houseNotes");notes.replaceChildren();
+  for(const note of room.notes||[])notes.append(node("p","house-note","• "+note));
+  const picker=$("housePicker");picker.replaceChildren();
+  for(const r of PACKING_ROOMS) {
+    const done=r.missions.filter(m=>state.houseDone[m.id]).length;
+    const button=node("button",r.id===room.id?"selected":"",r.icon+" "+r.name+" ("+done+"/"+r.missions.length+")");
+    button.addEventListener("click",()=>pickHouse(r.id));picker.append(button);
+  }
+  $("missionRoom").textContent=room.name.toUpperCase()+" · "+(mission?mission.phase==="now"?"EARLY PACKING":mission.phase==="final"?"FINAL WEEKS":"MOVING DAY":"NO AVAILABLE JOBS");
+  $("missionReward").textContent=mission?"+"+mission.cash+" coins":"";
+  $("missionName").textContent=mission?mission.title:"Nothing else available in this phase";
+  $("missionDetail").textContent=mission?mission.detail:"Choose another room, restore hidden jobs, or unlock a later phase under Stats.";
+  $("missionFlag").textContent=mission?(mission.repeat?"REPEATABLE · one real job per claim":"ONE-TIME JOB"):"";
+  $("houseDoneButton").disabled=!mission;
+  $("houseSkipBtn").disabled=list.length<2;
+  $("houseDismissBtn").disabled=!mission;
+  $("houseMissionNote").textContent="Completed jobs in this room: "+unique+" / "+room.missions.length+" · Available now: "+list.length;
+  $("restoreHiddenBtn").hidden=!hidden;
+  $("restoreHiddenBtn").textContent="Restore "+hidden+" hidden "+(hidden===1?"job":"jobs")+" in this room";
+}
+function renderPhase() {
+  const picker=$("phasePicker");picker.replaceChildren();
+  for(const phase of [{id:"now",label:"Pack early"},{id:"final",label:"Final weeks"},{id:"moving",label:"Moving days"}]) {
+    const b=node("button",state.phase===phase.id?"selected":"",phase.label);
+    b.addEventListener("click",()=>setPackingPhase(phase.id));picker.append(b);
+  }
+  $("phaseNote").textContent=state.phase==="now"?
+    "Pack nonessentials; keep everyday cooking, school gear, comfort items and electronics available.":
+    state.phase==="final"?
+    "Final 2–3 weeks: toys, accessories and more equipment can be packed carefully.":
+    "Moving-day jobs are unlocked. Keep travel and overnight essentials separate.";
+  $("roomMissionsDone").textContent=PACKING_ROOMS.reduce((sum,r)=>sum+r.missions.filter(m=>state.houseDone[m.id]).length,0);
+  $("freedBins").textContent=state.binsFreed;
+}
+
 function renderPacking() {
+  renderHouse();
   $("boxSize").value=state.boxSize;
   const quarter=state.boxes[state.boxSize],total=BOX_PAY[state.boxSize];
   $("boxProgress").textContent=quarter+" / 4 quarters • "+(state.boxCounts[state.boxSize]||0)+" completed "+state.boxSize+" boxes";
@@ -166,7 +277,7 @@ function renderPacking() {
   $("packingPrompt").textContent=PROMPTS[state.promptIndex%PROMPTS.length];
   const list=$("taskList");
   list.replaceChildren();
-  for(const task of [...DATA.tasks,...state.custom]) {
+  for(const task of state.custom) {
     const el=node("div","item");
     const info=node("div","");
     info.append(node("strong","",task.name),node("small","", "+"+task.reward+" coins per completion"));
@@ -240,6 +351,7 @@ function renderProgress() {
   $("statEarned").textContent=state.totalEarned.toLocaleString();
   $("statCollected").textContent=state.owned.length+" / "+DATA.items.length;
   $("boxTotals").textContent="Small: "+state.boxCounts.small+"  •  Medium: "+state.boxCounts.medium+"  •  Large: "+state.boxCounts.large;
+  renderPhase();
   const recent=$("recent");recent.replaceChildren();
   for(const h of [...state.history].reverse().slice(0,10)) {
     const r=node("div","recent-row");
@@ -283,6 +395,11 @@ function bind() {
   $("quarterBox").addEventListener("click",()=>claimBox(false));
   $("fullBox").addEventListener("click",()=>claimBox(true));
   $("anotherPrompt").addEventListener("click",()=>{state.promptIndex++;save();render();});
+  $("chooseRoomBtn").addEventListener("click",chooseHouseForMe);
+  $("houseDoneButton").addEventListener("click",completeHouseMission);
+  $("houseSkipBtn").addEventListener("click",skipHouseMission);
+  $("houseDismissBtn").addEventListener("click",dismissHouseMission);
+  $("restoreHiddenBtn").addEventListener("click",restoreRoomMissions);
   $("customTask").addEventListener("submit",event=>{
     event.preventDefault();const input=$("taskName"),name=input.value.trim();
     if(!name)return;
@@ -296,6 +413,6 @@ function bind() {
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)render();});
   show(state.view);
 }
-window.ducks={show,remindersChanged:function(enabled){renderLife();flash(enabled?"Reminders enabled.":"Reminders off.");}};
+window.ducks={show,chooseHouseForMe,completeHouseMission,skipHouseMission,dismissHouseMission,setPackingPhase,remindersChanged:function(enabled){renderLife();flash(enabled?"Reminders enabled.":"Reminders off.");}};
 bind();
 })();
