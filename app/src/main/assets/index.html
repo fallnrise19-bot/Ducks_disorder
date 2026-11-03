@@ -105,12 +105,13 @@
   <section id="rooms" class="panel hidden">
     <h2>Axel's Office <span class="muted">F-011</span></h2>
     <p id="roomCount" class="muted">0 collectibles owned</p>
+    <p class="muted room-hint">You buy the object. Mira picks its hiding place. Tap a new arrival to see what it is.</p>
     <div id="room" class="room">
-      <div class="room-label">F-011 · ORIGINAL ROOM IMAGE PENDING</div>
-      <div class="desk"></div>
-      <div id="placements"></div>
+      <img id="officePhoto" class="office-photo" src="axel-office.webp" alt="Axel's actual office: dark wooden walls, executive desk, two monitors, framed portraits, chairs and shelves" draggable="false">
+      <div id="placements" class="room-props" aria-label="Items placed in Axel's office"></div>
     </div>
-    <p class="muted">This is only the temporary placement-testing canvas. Your actual House Flipper 2 screenshot will replace it, not an invented room.</p>
+    <p id="roomReveal" class="room-reveal" hidden role="status" aria-live="polite"></p>
+    <p class="muted">The office is your original screenshot. Collectible markers are temporary until we add the individual transparent artwork. Empty placement spots stay secret.</p>
   </section>
 
   <section id="shop" class="panel hidden">
@@ -156,6 +157,7 @@
 <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
 <script src="data.js"></script>
 <script src="packing-rooms.js"></script>
+<script src="room-layout.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
