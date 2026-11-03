@@ -105,14 +105,20 @@
   <section id="rooms" class="panel hidden">
     <h2>Axel's Office <span class="muted">F-011</span></h2>
     <p id="roomCount" class="muted">0 collectibles owned</p>
-    <p class="muted room-hint">You buy the object. Mira picks its hiding place. Tap a new arrival to see what it is.</p>
-    <div id="roomViewport" class="room-viewport">
+    <p class="muted room-hint">One office, multiple views. Swipe the picture or use the arrows to explore. Bought items can appear on either side.</p>
+    <div class="office-view-heading"><strong id="officeViewTitle">Desk side</strong><span id="officeViewCount" class="muted">1 of 2 views</span></div>
+    <div id="roomViewport" class="room-viewport" tabindex="0" aria-label="Office photo. Swipe left or right or use arrow keys to change views.">
       <div id="room" class="room">
         <img id="officePhoto" class="office-photo" src="axel-office.webp" alt="Axel's actual office: dark wooden walls, executive desk, two monitors, framed portraits, chairs and shelves" draggable="false">
         <div id="placements" class="room-props" aria-label="Items placed in Axel's office"></div>
       </div>
     </div>
-    <div class="room-tools"><button id="roomZoomBtn" type="button" aria-pressed="false">🔎 Look closer</button></div>
+    <div class="office-view-nav" aria-label="Office photo views">
+      <button id="officePrevView" class="office-view-arrow" type="button" aria-label="Previous office view">‹</button>
+      <div id="officeViewDots" class="office-view-dots" role="group" aria-label="Choose office view"></div>
+      <button id="officeNextView" class="office-view-arrow" type="button" aria-label="Next office view">›</button>
+      <button id="roomZoomBtn" class="office-zoom" type="button" aria-pressed="false">🔎 Look closer</button>
+    </div>
     <p id="roomReveal" class="room-reveal" hidden role="status" aria-live="polite"></p>
     <div id="axelReaction" class="axel-reaction" hidden role="status" aria-live="polite">
       <div class="axel-reaction-header">
