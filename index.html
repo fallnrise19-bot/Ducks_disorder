@@ -1,1 +1,126 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#141824"><title>Ducks & Disorder</title><link rel="stylesheet" href="styles.css"></head><body><main><header><div><small>PACK REAL LIFE. DECORATE CHAOS.</small><h1>🦆 Ducks & Disorder</h1></div><div class="wallet">🪙 <span id="coins">0</span></div></header><nav><button data-tab="tasks" class="active">Tasks</button><button data-tab="rooms">Rooms</button><button data-tab="shop">Shop</button></nav><section id="tasks" class="panel"><h2>Earn your chaos</h2><p>Complete a real-life task, then claim its reward.</p><div class="item"><div><strong>📦 Box packing</strong><small>Small 50 · Medium 100 · Large 175 coins</small></div></div><div id="boxControls" class="box-controls"><select id="boxSize" aria-label="Box size"><option value="small">Small · 50</option><option value="medium">Medium · 100</option><option value="large">Large · 175</option></select><button id="quarterBox">Pack ¼ box</button><button id="fullBox" class="primary">Finish box</button></div><p id="boxProgress" class="muted"></p><div id="taskList"></div><form id="customTask"><input id="taskName" maxlength="70" placeholder="Add a packing task..." required><button type="submit">Add</button></form><h3>Completed today: <span id="done">0</span></h3></section><section id="rooms" class="panel hidden"><h2>Axel's Office <span class="muted">F-011</span></h2><p>Purchased objects appear here. Your real screenshot will replace the placeholder when imported.</p><div id="room" class="room"><div class="room-label">F-011 • BACKGROUND IMAGE PENDING</div><div class="desk"></div><div id="placements"></div></div><p class="muted">This is a temporary placement-testing canvas, not a replacement room design.</p></section><section id="shop" class="panel hidden"><h2>Shop of questionable decisions</h2><p>Earn coins by packing, then unleash nonsense.</p><p id="wishlist" class="wishlist" aria-live="polite"></p><div id="catalog"></div></section><footer>Local-first prototype • Your progress saves on this device</footer></main><script src="data.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141824">
+<title>Ducks &amp; Disorder</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main>
+  <header>
+    <div><small>PACK REAL LIFE. DECORATE CHAOS.</small><h1>🦆 Ducks &amp; Disorder</h1></div>
+    <div class="wallet" aria-label="Coin balance">🪙 <span id="coins">0</span></div>
+  </header>
+  <nav aria-label="Game sections">
+    <button data-tab="tasks" class="active">📦 Pack</button>
+    <button data-tab="life">💧 Life</button>
+    <button data-tab="rooms">🏠 Room</button>
+    <button data-tab="shop">🛍️ Shop</button>
+    <button data-tab="progress">◷ Stats</button>
+  </nav>
+
+  <section id="tasks" class="panel">
+    <h2>Earn your chaos</h2>
+    <p class="muted">Finish a box, or earn coins one quarter at a time. No streaks, no penalties.</p>
+    <div class="card">
+      <h3>📦 Box packing</h3>
+      <label for="boxSize" class="field-label">Choose your box size</label>
+      <div class="box-controls">
+        <select id="boxSize" aria-label="Box size">
+          <option value="small">Small · 50 coins</option>
+          <option value="medium">Medium · 100 coins</option>
+          <option value="large">Large · 175 coins</option>
+        </select>
+      </div>
+      <div class="prompt">
+        <span class="eyebrow">A SMALL STARTING STEP</span>
+        <strong id="packingPrompt">Put three things into the box.</strong>
+        <button id="anotherPrompt" class="quiet">↻ Try another tiny step</button>
+      </div>
+      <div class="packing-progress">
+        <p id="boxProgress" class="muted">0 / 4 quarters</p>
+        <div class="track"><div id="boxProgressFill" class="fill"></div></div>
+      </div>
+      <div class="stack">
+        <button id="quarterBox" class="outline">Packed another ¼</button>
+        <button id="fullBox" class="primary">Finished this box</button>
+      </div>
+    </div>
+    <h3>Other packing wins</h3>
+    <div id="taskList"></div>
+    <form id="customTask">
+      <input id="taskName" maxlength="70" placeholder="Add your own packing task..." required aria-label="New packing task">
+      <button type="submit">Add</button>
+    </form>
+    <p class="muted">Tasks completed today: <strong id="done">0</strong></p>
+  </section>
+
+  <section id="life" class="panel hidden">
+    <h2>Daily life still happens</h2>
+    <p class="muted">Water, food and chores earn coins too. Daily and weekly limits reset automatically. No streak punishment.</p>
+    <div id="lifeList"></div>
+    <div class="card">
+      <h3>Gentle phone reminders</h3>
+      <p id="reminderStatus" class="muted">Reminders are off.</p>
+      <button id="reminderBtn" class="outline">Turn on gentle reminders</button>
+      <p class="muted">Optional, approximate times. Android may delay alerts to save battery.</p>
+    </div>
+  </section>
+
+  <section id="rooms" class="panel hidden">
+    <h2>Axel's Office <span class="muted">F-011</span></h2>
+    <p id="roomCount" class="muted">0 collectibles owned</p>
+    <div id="room" class="room">
+      <div class="room-label">F-011 · ORIGINAL ROOM IMAGE PENDING</div>
+      <div class="desk"></div>
+      <div id="placements"></div>
+    </div>
+    <p class="muted">This is only the temporary placement-testing canvas. Your actual House Flipper 2 screenshot will replace it, not an invented room.</p>
+  </section>
+
+  <section id="shop" class="panel hidden">
+    <h2>Questionable decisions shop</h2>
+    <p class="muted">Every purchase is permanent. Prices reflect detail, rarity and how much it will annoy Axel.</p>
+    <p id="wishlist" class="wishlist" aria-live="polite">☆ Pick an item to save up for.</p>
+    <div id="catalog"></div>
+  </section>
+
+  <section id="progress" class="panel hidden">
+    <h2>Your actual progress</h2>
+    <p class="muted">Every little bit counts. Miss a day? Nothing gets taken away.</p>
+    <div class="stats">
+      <div class="stat"><strong id="statBoxes">0</strong><span>Boxes packed</span></div>
+      <div class="stat"><strong id="statToday">0</strong><span>Boxes today</span></div>
+      <div class="stat"><strong id="statEarned">0</strong><span>Total coins earned</span></div>
+      <div class="stat"><strong id="statCollected">0</strong><span>Collected items</span></div>
+    </div>
+    <div class="card">
+      <h3>Box totals</h3>
+      <p id="boxTotals" class="muted">Small: 0 • Medium: 0 • Large: 0</p>
+    </div>
+    <div class="card">
+      <h3>Recent wins</h3>
+      <div id="recent"></div>
+    </div>
+    <div class="card">
+      <h3>Keep your progress safe</h3>
+      <p class="muted">Your coins and purchases are stored on this phone. Export a backup before uninstalling or clearing app data.</p>
+      <button id="backupBtn" class="outline">Share / copy backup</button>
+      <textarea id="backupText" hidden readonly aria-label="Backup text"></textarea>
+      <button id="restoreToggle" class="quiet">Restore a backup</button>
+      <div id="restorePanel" hidden>
+        <textarea id="restoreInput" placeholder="Paste your saved backup code here" aria-label="Backup code"></textarea>
+        <button id="restoreBtn">Restore saved progress</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>Offline-first • Real-life work earns the right to cause fictional property damage.</footer>
+</main>
+<div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
