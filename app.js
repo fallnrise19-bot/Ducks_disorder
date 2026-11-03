@@ -370,14 +370,20 @@ function renderLife() {
     "On • Water noon / 4 PM / 8 PM, meals 1 PM / 6 PM, dishwasher 9 PM, laundry Sunday 1 PM, garbage Tuesday 7 PM.":
     "Off • Optional phone reminders for water, meals, dishwasher, Sunday laundry and Tuesday garbage.";
 }
-function renderShop() {
-  const picker=$("shopRoomPicker");picker.replaceChildren();
+function fillRoomSelect(id,selectedRoomId) {
+  const select=$(id);
+  // The options are data-driven, so adding future rooms doesn't add UI rows.
+  select.replaceChildren();
   for(const room of DECOR_ROOMS){
-    const button=node("button",state.shopRoom===room.id?"selected":"",room.icon+" "+room.name);
-    button.setAttribute("aria-pressed",String(state.shopRoom===room.id));
-    button.addEventListener("click",()=>{state.shopRoom=room.id;save();renderShop();});
-    picker.append(button);
+    const option=node("option","",room.icon+" "+room.name+" · "+room.id);
+    option.value=room.id;
+    select.append(option);
   }
+  select.value=selectedRoomId;
+}
+
+function renderShop() {
+  fillRoomSelect("shopRoomSelect",state.shopRoom);
   const wish=DATA.items.find(x=>x.id===state.wishlist);
   $("wishlist").textContent=!wish?"☆ Pick an item as your savings goal.":
     state.owned.includes(wish.id)?"★ Goal achieved: "+wish.name+"!":
@@ -436,13 +442,7 @@ function renderRoom() {
     room.id==="F-006"?
     "Kitchen island view. Every purchase takes a suitable secret spot in the kitchen.":
     "Dining room. The table and shelving are ready for Mira's questionable dinner parties.";
-  const picker=$("decorRoomPicker");picker.replaceChildren();
-  for(const option of DECOR_ROOMS){
-    const b=node("button",option.id===state.decorRoom?"selected":"",option.icon+" "+option.name);
-    b.setAttribute("aria-pressed",String(option.id===state.decorRoom));
-    b.addEventListener("click",()=>selectDecorRoom(option.id));
-    picker.append(b);
-  }
+  fillRoomSelect("decorRoomSelect",state.decorRoom);
   const photo=$("officePhoto");
   if(photo.dataset.viewId!==(room.id+":"+view.id)){
     photo.src=view.image;photo.dataset.viewId=room.id+":"+view.id;
@@ -546,6 +546,14 @@ function bind() {
   $("quarterBox").addEventListener("click",()=>claimBox(false));
   $("fullBox").addEventListener("click",()=>claimBox(true));
   $("anotherPrompt").addEventListener("click",()=>{state.promptIndex++;save();render();});
+  $("decorRoomSelect").addEventListener("change",event=>selectDecorRoom(event.target.value));
+  $("shopRoomSelect").addEventListener("change",event=>{
+    const roomId=event.target.value;
+    if(!DECOR_ROOMS.some(room=>room.id===roomId))return;
+    state.shopRoom=roomId;
+    save();
+    renderShop();
+  });
   // Zoom uses a genuinely scrollable 2D viewport, not just a larger picture.
   // Android WebView needs pan-x and pan-y on that scroll container. Its old
   // pan-y-only touch-action blocked horizontal dragging completely.
