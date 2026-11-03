@@ -410,6 +410,11 @@ function bind() {
   $("quarterBox").addEventListener("click",()=>claimBox(false));
   $("fullBox").addEventListener("click",()=>claimBox(true));
   $("anotherPrompt").addEventListener("click",()=>{state.promptIndex++;save();render();});
+  $("roomZoomBtn").addEventListener("click",()=>{
+    const expanded=$("room").classList.toggle("zoomed");
+    $("roomZoomBtn").textContent=expanded?"↩ Normal view":"🔎 Look closer";
+    $("roomZoomBtn").setAttribute("aria-pressed",String(!!expanded));
+  });
   $("chooseRoomBtn").addEventListener("click",chooseHouseForMe);
   $("houseDoneButton").addEventListener("click",completeHouseMission);
   $("houseSkipBtn").addEventListener("click",skipHouseMission);
