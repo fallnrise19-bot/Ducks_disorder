@@ -13,6 +13,10 @@ const reactions=fs.readFileSync(path.join(root,"axel-reactions.js"),"utf8");
 assert.ok(fs.existsSync(path.join(root,"axel-office.webp")),"original office image bundled in Android assets");
 assert.ok(fs.existsSync(path.join(root,"axel-office-boardroom.webp")),"second real office angle bundled");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
+const css=fs.readFileSync(path.join(root,"styles.css"),"utf8");
+assert.ok(css.includes(".room-viewport.zoomed"),"zoom container has independent scroll styling");
+assert.ok(css.includes("touch-action:pan-x pan-y"),"zoom mode permits native horizontal and vertical Android panning");
+assert.ok(css.includes("overflow-x:auto")&&css.includes("overflow-y:auto"),"zoom mode scrolls in two directions");
 assert.doesNotThrow(()=>new vm.Script(data),"data.js parses");
 assert.doesNotThrow(()=>new vm.Script(packing),"packing-rooms.js parses");
 assert.doesNotThrow(()=>new vm.Script(layout),"room-layout.js parses");
@@ -23,7 +27,17 @@ class Element {
   constructor(id="",text="") {
     this.id=id;this.textContent=text;this.value="";this.children=[];
     this.disabled=false;this.hidden=false;this.style={};this.dataset={};
-    this.listeners={};this.classList={toggle:()=>{}};
+    this.listeners={};
+    this.classes=new Set();
+    this.classList={
+      toggle:(name,forced)=>{
+        const selected=forced===undefined?!this.classes.has(name):!!forced;
+        if(selected)this.classes.add(name);
+        else this.classes.delete(name);
+        return selected;
+      },
+      contains:name=>this.classes.has(name)
+    };
   }
   append(...children){this.children.push(...children);}
   replaceChildren(...children){this.children=[...children];}
@@ -92,6 +106,35 @@ assert.equal(elements.officePhoto.src,"axel-office-boardroom.webp","second origi
 elements.officePrevView.click();
 assert.equal(state().officeView,"desk","previous arrow returns to desk");
 assert.equal(elements.officePhoto.src,"axel-office.webp","original desk screenshot unchanged");
+const viewport=elements.roomViewport,scene=elements.room;
+viewport.clientWidth=350;viewport.clientHeight=350;viewport.scrollLeft=0;viewport.scrollTop=0;
+scene.scrollWidth=1000;scene.scrollHeight=600;
+elements.roomZoomBtn.click();
+assert.equal(elements.room.classList.contains("zoomed"),true,"image zoom class activated");
+assert.equal(viewport.classList.contains("zoomed"),true,"viewport becomes a 2D scrolling surface");
+assert.equal(elements.officePanTools.hidden,false,"pan controls shown only in zoom");
+assert.ok(viewport.scrollLeft>0&&viewport.scrollTop>0,"zoomed image starts in the center");
+const zoomStartView=state().officeView;
+const beforePanX=viewport.scrollLeft,beforePanY=viewport.scrollTop;
+elements.officePanRight.click();elements.officePanDown.click();
+assert.ok(viewport.scrollLeft>beforePanX,"right button pans horizontally");
+assert.ok(viewport.scrollTop>beforePanY,"down button pans vertically");
+elements.officePanLeft.click();elements.officePanUp.click();
+assert.equal(viewport.scrollLeft,beforePanX,"left button pans back");
+assert.equal(viewport.scrollTop,beforePanY,"up button pans back");
+viewport.listeners.touchstart({touches:[{clientX:220,clientY:220}]});
+viewport.listeners.touchend({changedTouches:[{clientX:70,clientY:220}]});
+assert.equal(state().officeView,zoomStartView,"zoom drag never changes camera views");
+const arrows={key:"ArrowRight",preventDefault(){}};
+viewport.listeners.keydown(arrows);
+assert.ok(viewport.scrollLeft>beforePanX,"keyboard arrows pan while zoomed");
+elements.roomZoomBtn.click();
+assert.equal(elements.room.classList.contains("zoomed"),false,"normal mode restores image scale");
+assert.equal(viewport.classList.contains("zoomed"),false,"normal mode restores view swipes");
+assert.equal(elements.officePanTools.hidden,true,"pan controls hide in normal view");
+assert.equal(viewport.scrollLeft,0,"horizontal scroll reset after leaving zoom");
+assert.equal(viewport.scrollTop,0,"vertical scroll reset after leaving zoom");
+
 elements.roomViewport.listeners.touchstart({touches:[{clientX:200,clientY:230}]});
 elements.roomViewport.listeners.touchend({changedTouches:[{clientX:100,clientY:235}]});
 assert.equal(state().officeView,"boardroom","leftward finger swipe advances to next view");
