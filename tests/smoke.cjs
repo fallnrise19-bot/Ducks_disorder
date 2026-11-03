@@ -7,7 +7,9 @@ const root=path.join(__dirname,"..","app","src","main","assets");
 const html=fs.readFileSync(path.join(root,"index.html"),"utf8");
 const data=fs.readFileSync(path.join(root,"data.js"),"utf8");
 const kitchenData=fs.readFileSync(path.join(root,"kitchen-data.js"),"utf8");
+const diningData=fs.readFileSync(path.join(root,"dining-data.js"),"utf8");
 const kitchenPlacement=fs.readFileSync(path.join(root,"kitchen-placement.js"),"utf8");
+const diningPlacement=fs.readFileSync(path.join(root,"dining-placement.js"),"utf8");
 const packing=fs.readFileSync(path.join(root,"packing-rooms.js"),"utf8");
 const layout=fs.readFileSync(path.join(root,"room-layout.js"),"utf8");
 const placement=fs.readFileSync(path.join(root,"office-placement.js"),"utf8");
@@ -15,6 +17,7 @@ const reactions=fs.readFileSync(path.join(root,"axel-reactions.js"),"utf8");
 assert.ok(fs.existsSync(path.join(root,"axel-office.webp")),"original office image bundled in Android assets");
 assert.ok(fs.existsSync(path.join(root,"axel-office-boardroom.webp")),"second real office angle bundled");
 assert.ok(fs.existsSync(path.join(root,"facility-kitchen.webp")),"real kitchen photo bundled");
+assert.ok(fs.existsSync(path.join(root,"facility-dining.webp")),"user's real dining room photo bundled");
 const app=fs.readFileSync(path.join(root,"app.js"),"utf8");
 const css=fs.readFileSync(path.join(root,"styles.css"),"utf8");
 assert.ok(css.includes(".room-viewport.zoomed"),"zoom container has independent scroll styling");
@@ -24,7 +27,9 @@ assert.ok(css.includes(".closeup-exit-fixed")&&css.includes("position:fixed"),"z
 assert.ok(html.indexOf('id="closeupToolbar"') < html.indexOf('id="roomViewport"'),"exit button is above the magnified image");
 assert.doesNotThrow(()=>new vm.Script(data),"data.js parses");
 assert.doesNotThrow(()=>new vm.Script(kitchenData),"kitchen-data.js parses");
+assert.doesNotThrow(()=>new vm.Script(diningData),"dining-data.js parses");
 assert.doesNotThrow(()=>new vm.Script(kitchenPlacement),"kitchen-placement.js parses");
+assert.doesNotThrow(()=>new vm.Script(diningPlacement),"dining-placement.js parses");
 assert.doesNotThrow(()=>new vm.Script(packing),"packing-rooms.js parses");
 assert.doesNotThrow(()=>new vm.Script(layout),"room-layout.js parses");
 assert.doesNotThrow(()=>new vm.Script(placement),"office-placement.js parses");
@@ -77,15 +82,20 @@ const context={window,document,localStorage,Date,Math,Number,JSON,Array,Object,S
   setTimeout:()=>0,clearTimeout:()=>{}};
 vm.runInNewContext(data,context,{filename:"data.js"});
 vm.runInNewContext(kitchenData,context,{filename:"kitchen-data.js"});
+vm.runInNewContext(diningData,context,{filename:"dining-data.js"});
 vm.runInNewContext(packing,context,{filename:"packing-rooms.js"});
 vm.runInNewContext(layout,context,{filename:"room-layout.js"});
 vm.runInNewContext(placement,context,{filename:"office-placement.js"});
 vm.runInNewContext(kitchenPlacement,context,{filename:"kitchen-placement.js"});
+vm.runInNewContext(diningPlacement,context,{filename:"dining-placement.js"});
 vm.runInNewContext(reactions,context,{filename:"axel-reactions.js"});
 const run=()=>vm.runInNewContext(app,{...context},{filename:"app.js"});
 const state=()=>JSON.parse(memory.get("ducks-disorder-v1"));
 run();
-assert.equal(window.GAME_DATA.items.length,79,"40 office props plus 39 cut-out kitchen props");
+assert.equal(window.GAME_DATA.items.length,118,"40 office, 39 kitchen and 39 dining collectibles");
+assert.equal(window.DINING_CATALOG.length,39,"39 separate dining collectibles");
+assert.equal(window.DINING_LAYOUT.views.length,1,"dining room shows the user's actual photo");
+assert.ok(window.DINING_LAYOUT.slots.length>=60,"dining props get many secret realistic positions");
 assert.equal(window.KITCHEN_CATALOG.length,39,"each kitchen object has its own collectible");
 assert.equal(window.KITCHEN_LAYOUT.views.length,1,"kitchen uses only the real photo supplied");
 assert.ok(window.KITCHEN_LAYOUT.slots.length>=65,"plenty of safe hidden kitchen spots");
@@ -186,7 +196,7 @@ assert.equal(new Set(simulated.map(r=>r.text)).size,40,"no dialogue text repeats
 assert.equal(dialogue.clean(simulated,window.GAME_DATA.items.map(i=>i.id)).length,40,"all reactions survive state sanitation");
 for(const item of window.GAME_DATA.items){
   assert.ok(item.asset&&item.asset.endsWith(".png"),"real PNG assigned to "+item.id);
-  const file=path.join(root,item.room==="F-006"?"kitchen":"collectibles",item.asset);
+  const file=path.join(root,item.room==="F-012"?"dining":item.room==="F-006"?"kitchen":"collectibles",item.asset);
   assert.ok(fs.existsSync(file),"offline art is bundled: "+item.asset);
   assert.equal(fs.readFileSync(file).subarray(1,4).toString(),"PNG","asset is a real PNG: "+item.asset);
 }
@@ -304,7 +314,7 @@ assert.equal(state().houseDone["k-upper"],1,"mission completion survives restart
 assert.equal(state().houseRoom,"kitchen","selected room survives restart");
 
 // The kitchen is a separate playable room, not a third angle of Axel's office.
-assert.equal(elements.decorRoomPicker.children.length,2,"office and kitchen room selectors");
+assert.equal(elements.decorRoomPicker.children.length,3,"office, kitchen and dining room selectors");
 elements.decorRoomPicker.children[1].click();
 assert.equal(state().decorRoom,"F-006","room picker opens kitchen");
 assert.equal(elements.officePhoto.src,"facility-kitchen.webp","real kitchen screenshot displayed");
@@ -336,4 +346,41 @@ run();
 assert.equal(state().owned.length,3,"office and kitchen purchases all survive restart");
 assert.ok(state().placements[kitchenItem.id],"kitchen placement saved across restarts");
 assert.equal(state().houseDone["k-upper"],1,"packing progress unaffected by new kitchen room");
+
+// Dining room is a THIRD collection with its own photo and its own slots.
+// The shared wallet and all previous purchases must remain unchanged.
+assert.equal(elements.decorRoomPicker.children.length,3,"all three rooms remain selectable after restart");
+elements.decorRoomPicker.children[2].click();
+assert.equal(state().decorRoom,"F-012","dining room is independent of F-006 kitchen");
+assert.equal(elements.officePhoto.src,"facility-dining.webp","actual user's dining screenshot displays");
+assert.equal(elements.placements.children.length,0,"office and kitchen art does not leak into dining");
+assert.ok(elements.decorRoomHeading.textContent.includes("Dining Room"),"dining room heading is clear");
+assert.equal(elements.officeViewCount.textContent,"1 of 1 views");
+elements.roomZoomBtn.click();
+assert.equal(elements.closeupExitFixed.hidden,false,"dining zoom has reachable exit controls");
+elements.closeupExitFixed.click();
+assert.equal(viewport.classList.contains("zoomed"),false,"dining zoom exits without trapping user");
+elements.shopRoomPicker.children[2].click();
+assert.equal(state().shopRoom,"F-012","dining shop isolated");
+assert.equal(elements.catalog.children.length,39,"shop offers 39 dining props");
+assert.equal(elements.catalog.children[0].children[0].children[0].src,"dining/pizza_box_stack.png");
+const diningItem=window.DINING_CATALOG[0];
+const previousBalance=state().coins;
+elements.catalog.children[0].children[1].children[1].click();
+assert.equal(state().coins,previousBalance-diningItem.cost,"dining purchase only deducts its own price");
+assert.equal(state().decorRoom,"F-012","a dining purchase reveals the dining room");
+assert.ok(state().owned.includes(diningItem.id),"new dining item is owned");
+assert.ok(state().owned.includes(kitchenItem.id)&&state().owned.includes(item.id),"office and kitchen owned items remain");
+assert.ok(state().placements[diningItem.id].startsWith("d-"),"dining prop uses distinct placement anchor");
+assert.equal(elements.placements.children.length,1,"dining prop appears only in dining room");
+assert.equal(elements.placements.children[0].children[0].src,"dining/pizza_box_stack.png","real dining art appears instead of emoji");
+elements.decorRoomPicker.children[1].click();
+assert.equal(elements.placements.children.length,1,"existing kitchen item remains visible");
+elements.decorRoomPicker.children[0].click();
+assert.equal(state().decorRoom,"F-011");
+assert.equal(state().owned.length,4,"no purchases lost after adding dining");
+run();
+assert.equal(state().owned.length,4,"all three collections survive app restart");
+assert.ok(state().placements[diningItem.id]&&state().placements[kitchenItem.id],"room placements persist independently");
+assert.equal(state().houseDone["k-upper"],1,"room expansion never touches packing history");
 console.log("Ducks & Disorder smoke tests passed.");
