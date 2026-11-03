@@ -1,4 +1,11 @@
 plugins { id 'com.android.application' }
+
+// Android won't accept an update with a lower versionCode. Give every GitHub
+// Actions run a newer versionCode without requiring manual edits each build.
+// The applicationId MUST stay unchanged so updates preserve local app data.
+def ciRunNumber = System.getenv('GITHUB_RUN_NUMBER')
+def buildNumber = ciRunNumber ? Integer.parseInt(ciRunNumber) : 1
+
 android {
     namespace 'ca.creativepixels.ducksdisorder'
     compileSdk 35
@@ -6,8 +13,8 @@ android {
         applicationId 'ca.creativepixels.ducksdisorder'
         minSdk 26
         targetSdk 35
-        versionCode 4
-        versionName '0.4.0'
+        versionCode 1000 + buildNumber
+        versionName "0.5.0.${buildNumber}"
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
