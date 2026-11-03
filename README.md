@@ -31,10 +31,10 @@ Android requires **all three** to install a replacement in place: the exact same
 
 - Application ID stays `ca.creativepixels.ducksdisorder`. NEVER change it without intentionally starting a second app.
 - Every GitHub Actions run automatically gets a larger `versionCode` (1000 + `GITHUB_RUN_NUMBER`), so we do not reuse code 4 accidentally.
-- The debug-signing key is restored from the original `ducks-disorder-debug-keystore-v1` GitHub Actions cache. The build **fails safely** if that cache is missing instead of generating a new incompatible signature. Do not rename or delete this key/cache.
+- The Android debug-signing key is explicitly generated once, at `~/.android/ducks-disorder-debug.keystore`, and saved to the `ducks-disorder-android-debug-signing-v2` GitHub Actions cache. Subsequent runs restore this exact key. Its public certificate fingerprint is pinned in `signing/ci-debug-cert.sha256`; if the cache disappears and a different key is generated, the build **fails safely** instead of issuing an incompatible update. Do not rename or delete this cache.
 - **Do not uninstall an existing version just to get an update.** Choose the new APK and install it normally. It should be detected as an update and retain local data as long as the signing key matches.
 - **One-time exception:** Any version already installed that was signed with a *different previous debug key* cannot be upgraded by changing only its versionCode. Android blocks this by design. Export a backup in **Stats → Share / copy backup** before changing keys or uninstalling; after installing a compatible new build, restore it under **Stats → Restore a backup**.
-- GitHub's Actions cache can be evicted. If CI reports the signing key missing, do **not** let the next run silently rotate to a new one. Instead migrate to a dedicated signing key stored securely in repository secrets. Never publish a real signing keystore into this public repository.
+- GitHub's Actions cache can be evicted. If CI reports a signing-certificate mismatch, do **not** overwrite the pinned fingerprint to make a build pass. Instead restore the original key or migrate to a dedicated signing key stored securely in repository secrets. Never publish a signing keystore into this public repository.
 
 Do not clear app data or uninstall without saving a progress backup first.
 
