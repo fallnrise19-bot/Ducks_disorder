@@ -114,7 +114,14 @@
     </div>
     <div class="room-tools"><button id="roomZoomBtn" type="button" aria-pressed="false">🔎 Look closer</button></div>
     <p id="roomReveal" class="room-reveal" hidden role="status" aria-live="polite"></p>
-    <p class="muted">The office is your original screenshot. Collectible markers are temporary until we add the individual transparent artwork. Empty placement spots stay secret.</p>
+    <div id="axelReaction" class="axel-reaction" hidden role="status" aria-live="polite">
+      <div class="axel-reaction-header">
+        <span class="axel-reaction-author">AXEL</span>
+        <span class="axel-reaction-subject" id="axelReactionSubject"></span>
+      </div>
+      <p class="axel-reaction-text" id="axelReactionText"></p>
+    </div>
+    <p class="muted">Every purchase lands in a secret spot. The room remembers the placement, and Axel remembers the intrusion.</p>
   </section>
 
   <section id="shop" class="panel hidden">
@@ -162,6 +169,7 @@
 <script src="packing-rooms.js"></script>
 <script src="room-layout.js"></script>
 <script src="office-placement.js"></script>
+<script src="axel-reactions.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
