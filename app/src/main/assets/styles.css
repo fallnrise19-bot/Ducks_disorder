@@ -111,3 +111,18 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 @keyframes axel-reaction-appears{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.axel-reaction-new{animation:none}}
 @media(max-width:460px){.axel-reaction{padding:13px 14px}.axel-reaction-subject{max-width:68%}}
+
+/* A single F-011 room can contain many photographic views. The gallery
+   never displays unpurchased placement positions. */
+.office-view-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:12px 0 8px}
+.office-view-heading strong{font-size:15px;color:#e8d6f3}
+.office-view-heading .muted{font-size:12px}
+.office-view-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 1px 5px;min-height:56px}
+.office-view-arrow{display:flex;align-items:center;justify-content:center;flex:none;min-width:48px;min-height:45px;background:#35304a;border:1px solid #726080;font-size:27px;line-height:1;border-radius:13px}
+.office-view-dots{display:flex;justify-content:center;gap:7px;align-items:center;flex:1;min-width:30px}
+.office-view-dots .office-dot{border:1px solid #827392;width:27px;height:27px;min-width:27px;padding:0;font-size:15px;line-height:1;background:#303146;color:#76758b;border-radius:50%}
+.office-view-dots .office-dot.active{color:#ffc779;background:#6b456b;border-color:#d4a0da}
+.office-zoom{font-size:12px;white-space:nowrap;flex:none;min-height:42px;background:#373348;border:1px solid #685579;padding:9px 10px}
+.room-viewport{touch-action:pan-y pinch-zoom;overscroll-behavior-x:contain}
+.room-viewport:focus-visible{outline:2px solid #ac8dcb;outline-offset:3px}
+@media(max-width:460px){.office-view-nav{gap:5px}.office-view-arrow{min-width:43px}.office-view-dots{gap:3px}.office-zoom{font-size:11px;padding:8px 7px}.office-view-dots .office-dot{width:25px;height:25px;min-width:25px}}
