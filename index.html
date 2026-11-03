@@ -103,7 +103,8 @@
   </section>
 
   <section id="rooms" class="panel hidden">
-    <h2>Axel's Office <span class="muted">F-011</span></h2>
+    <h2 id="decorRoomHeading">Axel's Office · F-011</h2>
+    <div id="decorRoomPicker" class="decor-room-picker" role="group" aria-label="Choose a room to decorate"></div>
     <p id="roomCount" class="muted">0 collectibles owned</p>
     <p class="muted room-hint">One office, multiple views. Swipe the picture or use the arrows to explore. Bought items can appear on either side.</p>
     <div class="office-view-heading"><strong id="officeViewTitle">Desk side</strong><span id="officeViewCount" class="muted">1 of 2 views</span></div>
@@ -141,6 +142,7 @@
 
   <section id="shop" class="panel hidden">
     <h2>Questionable decisions shop</h2>
+    <div id="shopRoomPicker" class="decor-room-picker" role="group" aria-label="Choose a collection to shop"></div>
     <p class="muted">Every purchase is permanent. Prices reflect detail, rarity and how much it will annoy Axel.</p>
     <p id="wishlist" class="wishlist" aria-live="polite">☆ Pick an item to save up for.</p>
     <div id="catalog"></div>
@@ -181,9 +183,11 @@
 </main>
 <div id="toast" class="toast" hidden role="status" aria-live="polite"></div>
 <script src="data.js"></script>
+<script src="kitchen-data.js"></script>
 <script src="packing-rooms.js"></script>
 <script src="room-layout.js"></script>
 <script src="office-placement.js"></script>
+<script src="kitchen-placement.js"></script>
 <script src="axel-reactions.js"></script>
 <script src="app.js"></script>
 </body>
