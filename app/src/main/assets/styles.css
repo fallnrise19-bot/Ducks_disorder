@@ -180,3 +180,10 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
   font-size:18px;
 }
 .office-pan-tools[hidden]{display:none!important}
+
+/* Two actual decoration destinations share the coin wallet but not clutter. */
+.decor-room-picker{display:flex;flex-wrap:wrap;gap:8px;margin:9px 0 15px}
+.decor-room-picker button{flex:1;min-width:125px;padding:12px 9px;border:1px solid #566077;background:#2d3448;color:#e0e7f4;font-size:13px}
+.decor-room-picker button.selected{background:#615077;border-color:#c99ee3;color:#fff;font-weight:850}
+#officePrevView:disabled,#officeNextView:disabled{opacity:.25}
+.room .prop-fridge{transform:translate(-50%,-50%)}
