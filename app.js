@@ -42,7 +42,7 @@ function weekKey() {
 }
 function defaults() {
   return {
-    coins:0, totalEarned:0, owned:[], placements:{}, officeView:"desk", axelReactions:[], history:[], custom:[], wishlist:null,
+    coins:0, totalEarned:0, owned:[], placements:{}, officeLayoutVersion:PLACE.layoutVersion, officeView:"desk", axelReactions:[], history:[], custom:[], wishlist:null,
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
@@ -57,7 +57,12 @@ function normalize(raw) {
   s.coins=validNum(raw.coins);
   s.totalEarned=validNum(raw.totalEarned===undefined?raw.earned||raw.coins:raw.totalEarned);
   s.owned=Array.isArray(raw.owned)?[...new Set(raw.owned.filter(id=>DATA.items.some(item=>item.id===id)))]:[];
-  s.placements=PLACE.restore(s.owned,raw.placements);
+  // One-time layout upgrade: fix floating and overlapping old props, and
+  // spread existing purchases across both real office photographs.
+  // Inventory, coins, box rewards and dialogue history are untouched.
+  const oldLayout=Number(raw.officeLayoutVersion)||0;
+  s.placements=PLACE.restore(s.owned,raw.placements,{reflow:oldLayout<PLACE.layoutVersion});
+  s.officeLayoutVersion=PLACE.layoutVersion;
   s.officeView=OFFICE.views.some(v=>v.id===raw.officeView)?raw.officeView:OFFICE.views[0].id;
   s.axelReactions=AXEL.clean(raw.axelReactions,s.owned);
   s.history=Array.isArray(raw.history)?raw.history.filter(h=>h&&typeof h.id==="string").slice(-250):[];
@@ -166,7 +171,7 @@ function claimRoutine(r) {
 function purchase(item) {
   if(state.owned.includes(item.id)||state.coins<item.cost)return;
   state.coins-=item.cost;
-  state.placements[item.id]=PLACE.choose(item,new Set(Object.values(state.placements)),true);
+  state.placements[item.id]=PLACE.choose(item,state.placements,true);
   // Open whichever photo contains the surprise, including the boardroom side.
   const newSpot=PLACE.spot(state.placements[item.id]);
   if(newSpot)state.officeView=newSpot.view||OFFICE.views[0].id;
@@ -405,7 +410,9 @@ function renderRoom() {
     prop.title=item.name;
     prop.style.left=(spot.x*100)+"%";
     prop.style.top=(spot.y*100)+"%";
-    prop.style.width=(item.width||8)+"%";
+    // Artwork is scaled against the real perspective of its surface.
+    const footprint=PLACE.bounds(item,spot);
+    prop.style.width=(footprint?footprint.w*100:3)+"%";
     prop.setAttribute("role","img");
     prop.setAttribute("aria-label",item.name);
     prop.addEventListener("click",()=>flash(item.name));
