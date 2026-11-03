@@ -62,3 +62,24 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 .phase-picker button.selected{background:#6d4e35;color:#fff1e6;border-color:#c18c60}
 #restoreHiddenBtn{margin:0 0 6px}
 @media(max-width:440px){.choose-for-me{font-size:13px;padding:12px 10px}.house-mission{padding:14px}.house-card-top h3{font-size:23px}.house-picker button{font-size:13px}}
+
+/* Original House Flipper 2 screenshot with secret purchased-item placements. */
+.room{background:#14151b;border:2px solid #62546e;box-shadow:0 12px 35px #0007;isolation:isolate}
+.office-photo{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:fill;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.room-props{position:absolute;inset:0;pointer-events:none}
+.room .prop{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;position:absolute;line-height:1;transform:translate(-50%,-88%);font-size:clamp(19px,3.5vw,45px);text-shadow:0 2px 3px #000d,0 0 4px #000b;filter:drop-shadow(0 4px 3px #000b);cursor:pointer;touch-action:manipulation;z-index:2}
+.room .prop-wall{transform:translate(-50%,-50%);font-size:clamp(20px,3vw,43px)}
+.room .prop-shelf,.room .prop-counter,.room .prop-cabinet{font-size:clamp(17px,2.7vw,37px)}
+.room .prop-floor,.room .prop-chair{font-size:clamp(23px,4vw,55px)}
+.room .prop-arrival{z-index:5;animation:office-item-arrival 900ms cubic-bezier(.18,1.2,.25,1) both}
+.room .prop-arrival::after{content:'✦';position:absolute;top:-11px;right:-8px;color:#f8cc60;text-shadow:0 0 10px #e78bdb;font-size:15px;animation:office-sparkle 1.5s ease-in-out infinite}
+@keyframes office-item-arrival{0%{opacity:0;scale:.2;filter:drop-shadow(0 0 20px #fe8ef7)}50%{opacity:1;scale:1.5;filter:drop-shadow(0 0 12px #e76cff)}100%{opacity:1;scale:1;filter:drop-shadow(0 4px 3px #000a)}}
+@keyframes office-sparkle{0%,100%{opacity:.4;scale:.8}50%{opacity:1;scale:1.3}}
+.room-hint{margin:3px 0 12px}
+.room-reveal{margin:12px 0;font-weight:700;color:#e8b7f9;font-size:14px}
+.room-viewport{max-width:100%;overflow-x:auto;border-radius:12px;overscroll-behavior-x:contain}
+.room-viewport .room{width:100%;max-width:100%}
+.room-viewport .room.zoomed{width:850px;max-width:none}
+.room-tools{display:flex;justify-content:flex-end;margin:8px 0}
+.room-tools button{background:#373348;border:1px solid #685579;padding:9px 12px;font-size:13px}
+@media(prefers-reduced-motion:reduce){.room .prop-arrival,.room .prop-arrival::after{animation:none}}
