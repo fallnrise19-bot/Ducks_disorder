@@ -224,3 +224,15 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
   opacity:.97;
   touch-action:manipulation;
 }
+
+/* Compact future-proof room chooser: one dropdown, however many rooms we add. */
+.decor-room-dropdown{margin:12px 0 16px;display:flex;flex-direction:column;gap:7px}
+.decor-room-dropdown label{font-weight:750;font-size:13px;letter-spacing:.035em;color:#d4c5e5}
+.decor-room-dropdown select{
+  display:block;width:100%;max-width:100%;min-height:51px;
+  border:1px solid #7b6997;border-radius:13px;
+  background:#36344e;color:#f7f0ff;
+  padding:11px 16px;font:inherit;font-size:16px;font-weight:650;
+  color-scheme:dark;touch-action:manipulation;
+}
+.decor-room-dropdown select:focus-visible{outline:2px solid #d0a4e8;outline-offset:2px}
