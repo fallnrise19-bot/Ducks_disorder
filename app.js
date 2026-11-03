@@ -482,21 +482,52 @@ function bind() {
   $("quarterBox").addEventListener("click",()=>claimBox(false));
   $("fullBox").addEventListener("click",()=>claimBox(true));
   $("anotherPrompt").addEventListener("click",()=>{state.promptIndex++;save();render();});
+  // Zoom uses a genuinely scrollable 2D viewport, not just a larger picture.
+  // Android WebView needs pan-x and pan-y on that scroll container. Its old
+  // pan-y-only touch-action blocked horizontal dragging completely.
   let zoomed=false;
+  const viewport=$("roomViewport");
+  const office=$("room");
+  function panOffice(dx,dy) {
+    if(!zoomed)return;
+    viewport.scrollLeft=Math.max(0,Math.min(
+      office.scrollWidth-viewport.clientWidth,
+      viewport.scrollLeft+dx
+    ));
+    viewport.scrollTop=Math.max(0,Math.min(
+      office.scrollHeight-viewport.clientHeight,
+      viewport.scrollTop+dy
+    ));
+  }
   $("roomZoomBtn").addEventListener("click",()=>{
     zoomed=!zoomed;
-    $("room").classList.toggle("zoomed",zoomed);
+    viewport.classList.toggle("zoomed",zoomed);
+    office.classList.toggle("zoomed",zoomed);
+    $("officePanTools").hidden=!zoomed;
     $("roomZoomBtn").textContent=zoomed?"↩ Normal view":"🔎 Look closer";
     $("roomZoomBtn").setAttribute("aria-pressed",String(zoomed));
+    viewport.setAttribute("aria-label",zoomed?
+      "Enlarged office image. Drag in any direction, or use the four directional buttons.":
+      "Office photo. Swipe left or right to change room views.");
+    if(zoomed) {
+      // Begin in the middle, with scroll room to look both left and right,
+      // and up and down. Physical finger drag is browser-native.
+      viewport.scrollLeft=Math.max(0,(office.scrollWidth-viewport.clientWidth)/2);
+      viewport.scrollTop=Math.max(0,(office.scrollHeight-viewport.clientHeight)/2);
+    } else {
+      viewport.scrollLeft=0;
+      viewport.scrollTop=0;
+    }
   });
+  $("officePanLeft").addEventListener("click",()=>panOffice(-150,0));
+  $("officePanUp").addEventListener("click",()=>panOffice(0,-115));
+  $("officePanDown").addEventListener("click",()=>panOffice(0,115));
+  $("officePanRight").addEventListener("click",()=>panOffice(150,0));
   $("officePrevView").addEventListener("click",()=>stepOfficeView(-1));
   $("officeNextView").addEventListener("click",()=>stepOfficeView(1));
-  // Touch navigation works with any number of room photos. When zoomed, allow
-  // horizontal panning within the photo instead of hijacking that gesture.
   let officeTouch=null;
-  const viewport=$("roomViewport");
   viewport.addEventListener("touchstart",event=>{
-    if(event.touches && event.touches.length===1)
+    if(!zoomed && event.touches && event.touches.length===1)
       officeTouch={x:event.touches[0].clientX,y:event.touches[0].clientY};
     else officeTouch=null;
   },{passive:true});
@@ -511,8 +542,17 @@ function bind() {
   },{passive:true});
   viewport.addEventListener("touchcancel",()=>{officeTouch=null;});
   viewport.addEventListener("keydown",event=>{
-    if(event.key==="ArrowLeft"){stepOfficeView(-1);event.preventDefault();}
-    if(event.key==="ArrowRight"){stepOfficeView(1);event.preventDefault();}
+    const arrows={
+      ArrowLeft:[-130,0],ArrowRight:[130,0],
+      ArrowUp:[0,-110],ArrowDown:[0,110]
+    };
+    const delta=arrows[event.key];
+    if(!delta)return;
+    if(zoomed)panOffice(...delta);
+    else if(event.key==="ArrowLeft"||event.key==="ArrowRight")
+      stepOfficeView(event.key==="ArrowLeft"?-1:1);
+    else return;
+    event.preventDefault();
   });
   $("chooseRoomBtn").addEventListener("click",chooseHouseForMe);
   $("houseDoneButton").addEventListener("click",completeHouseMission);
