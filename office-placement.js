@@ -7,7 +7,9 @@
   const slotMap=new Map(layout.slots.map(slot=>[slot.id,slot]));
   function choose(item,used,random) {
     const allowed=layout.itemZones[item.id]||["desk","counter","shelf"];
-    let candidates=layout.slots.filter(slot=>allowed.includes(slot.zone)&&!used.has(slot.id));
+    const preferred=layout.itemSlots&&layout.itemSlots[item.id];
+    let candidates=Array.isArray(preferred)?layout.slots.filter(slot=>preferred.includes(slot.id)&&!used.has(slot.id)):[];
+    if(!candidates.length)candidates=layout.slots.filter(slot=>allowed.includes(slot.zone)&&!used.has(slot.id));
     if(!candidates.length)candidates=layout.slots.filter(slot=>!used.has(slot.id));
     if(!candidates.length)return null;
     let index;
