@@ -91,6 +91,15 @@ vm.runInNewContext(diningPlacement,context,{filename:"dining-placement.js"});
 vm.runInNewContext(reactions,context,{filename:"axel-reactions.js"});
 const run=()=>vm.runInNewContext(app,{...context},{filename:"app.js"});
 const state=()=>JSON.parse(memory.get("ducks-disorder-v1"));
+function changeRoomDropdown(id,value){
+  const control=elements[id];
+  assert.ok(control,"room dropdown exists: "+id);
+  assert.ok(control.children.some(option=>option.value===value),"option exists: "+value);
+  control.value=value;
+  control.listeners.change({target:control});
+  assert.equal(control.value,value,"selected room stays displayed");
+}
+
 run();
 assert.equal(window.GAME_DATA.items.length,118,"40 office, 39 kitchen and 39 dining collectibles");
 assert.equal(window.DINING_CATALOG.length,39,"39 separate dining collectibles");
@@ -314,8 +323,13 @@ assert.equal(state().houseDone["k-upper"],1,"mission completion survives restart
 assert.equal(state().houseRoom,"kitchen","selected room survives restart");
 
 // The kitchen is a separate playable room, not a third angle of Axel's office.
-assert.equal(elements.decorRoomPicker.children.length,3,"office, kitchen and dining room selectors");
-elements.decorRoomPicker.children[1].click();
+assert.equal(elements.decorRoomSelect.children.length,3,"office, kitchen and dining room selectors");
+assert.equal(elements.shopRoomSelect.children.length,3,"shop dropdown includes every room");
+assert.ok(html.includes('id="decorRoomSelect"')&&html.includes('id="shopRoomSelect"'),"both tabs have native select controls");
+assert.ok(!html.includes('id="decorRoomPicker"'),"old room button grid removed");
+assert.equal(elements.decorRoomSelect.value,"F-011","existing saved room selection shows on open");
+assert.equal(elements.shopRoomSelect.value,"F-011","existing saved shop selection shows on open");
+changeRoomDropdown("decorRoomSelect","F-006");
 assert.equal(state().decorRoom,"F-006","room picker opens kitchen");
 assert.equal(elements.officePhoto.src,"facility-kitchen.webp","real kitchen screenshot displayed");
 assert.equal(elements.placements.children.length,0,"office props never intrude into kitchen");
@@ -324,7 +338,7 @@ elements.roomZoomBtn.click();
 assert.equal(elements.closeupExitFixed.hidden,false,"kitchen magnification also shows pinned exit");
 elements.closeupExitFixed.click();
 assert.equal(viewport.classList.contains("zoomed"),false,"kitchen exits from pinned control even with one photo");
-elements.shopRoomPicker.children[1].click();
+changeRoomDropdown("shopRoomSelect","F-006");
 assert.equal(state().shopRoom,"F-006","shop switches to kitchen-only catalog");
 assert.equal(elements.catalog.children.length,39,"all 39 kitchen items are purchasable");
 assert.equal(elements.catalog.children[0].children[0].children[0].src,"kitchen/pizza_stack.png","kitchen shop shows cutout PNG");
@@ -339,7 +353,7 @@ assert.ok(state().placements[kitchenItem.id].startsWith("k-"),"kitchen uses its 
 assert.equal(elements.placements.children.length,1,"new kitchen prop appears in kitchen only");
 assert.equal(elements.placements.children[0].children[0].src,"kitchen/pizza_stack.png","kitchen screenshot renders correct PNG");
 assert.equal(state().axelReactions.length,3,"Axel reacts to kitchen invasion too");
-elements.decorRoomPicker.children[0].click();
+changeRoomDropdown("decorRoomSelect","F-011");
 assert.equal(state().decorRoom,"F-011");
 assert.equal(elements.placements.children.length,1,"office still displays its own desk prop");
 run();
@@ -349,8 +363,8 @@ assert.equal(state().houseDone["k-upper"],1,"packing progress unaffected by new 
 
 // Dining room is a THIRD collection with its own photo and its own slots.
 // The shared wallet and all previous purchases must remain unchanged.
-assert.equal(elements.decorRoomPicker.children.length,3,"all three rooms remain selectable after restart");
-elements.decorRoomPicker.children[2].click();
+assert.equal(elements.decorRoomSelect.children.length,3,"all three rooms remain selectable after restart");
+changeRoomDropdown("decorRoomSelect","F-012");
 assert.equal(state().decorRoom,"F-012","dining room is independent of F-006 kitchen");
 assert.equal(elements.officePhoto.src,"facility-dining.webp","actual user's dining screenshot displays");
 assert.equal(elements.placements.children.length,0,"office and kitchen art does not leak into dining");
@@ -360,7 +374,7 @@ elements.roomZoomBtn.click();
 assert.equal(elements.closeupExitFixed.hidden,false,"dining zoom has reachable exit controls");
 elements.closeupExitFixed.click();
 assert.equal(viewport.classList.contains("zoomed"),false,"dining zoom exits without trapping user");
-elements.shopRoomPicker.children[2].click();
+changeRoomDropdown("shopRoomSelect","F-012");
 assert.equal(state().shopRoom,"F-012","dining shop isolated");
 assert.equal(elements.catalog.children.length,39,"shop offers 39 dining props");
 assert.equal(elements.catalog.children[0].children[0].children[0].src,"dining/pizza_box_stack.png");
@@ -374,13 +388,16 @@ assert.ok(state().owned.includes(kitchenItem.id)&&state().owned.includes(item.id
 assert.ok(state().placements[diningItem.id].startsWith("d-"),"dining prop uses distinct placement anchor");
 assert.equal(elements.placements.children.length,1,"dining prop appears only in dining room");
 assert.equal(elements.placements.children[0].children[0].src,"dining/pizza_box_stack.png","real dining art appears instead of emoji");
-elements.decorRoomPicker.children[1].click();
+changeRoomDropdown("decorRoomSelect","F-006");
 assert.equal(elements.placements.children.length,1,"existing kitchen item remains visible");
-elements.decorRoomPicker.children[0].click();
+changeRoomDropdown("decorRoomSelect","F-011");
 assert.equal(state().decorRoom,"F-011");
 assert.equal(state().owned.length,4,"no purchases lost after adding dining");
 run();
 assert.equal(state().owned.length,4,"all three collections survive app restart");
 assert.ok(state().placements[diningItem.id]&&state().placements[kitchenItem.id],"room placements persist independently");
 assert.equal(state().houseDone["k-upper"],1,"room expansion never touches packing history");
+assert.equal(elements.decorRoomSelect.value,"F-011","saved room dropdown remains selected after restart");
+assert.equal(elements.shopRoomSelect.value,"F-012","saved shop dropdown remains selected after restart");
+assert.equal(elements.decorRoomSelect.children.length,3,"future room options don't consume screen height");
 console.log("Ducks & Disorder smoke tests passed.");
