@@ -27,6 +27,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
+      - name: Unpack real collectible PNG artwork
+        run: |
+          unzip -oq assets/office-collectibles-v1.zip -d .
+          test -s app/src/main/assets/collectibles/ask_axel_mug.png
+          test -s app/src/main/assets/collectibles/mira_middle_finger.png
       - name: Smoke test packing and rewards
         run: node tests/smoke.cjs
 
