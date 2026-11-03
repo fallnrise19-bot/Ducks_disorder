@@ -104,7 +104,10 @@
 
   <section id="rooms" class="panel hidden">
     <h2 id="decorRoomHeading">Axel's Office · F-011</h2>
-    <div id="decorRoomPicker" class="decor-room-picker" role="group" aria-label="Choose a room to decorate"></div>
+    <div class="decor-room-dropdown">
+      <label for="decorRoomSelect">Explore Axel's rooms</label>
+      <select id="decorRoomSelect" aria-label="Choose a room to decorate"></select>
+    </div>
     <p id="roomCount" class="muted">0 collectibles owned</p>
     <p id="roomIntro" class="muted room-hint">Choose a room to see Mira’s latest purchases. Each room keeps its own hidden decoration spots.</p>
     <div class="office-view-heading"><strong id="officeViewTitle">Desk side</strong><span id="officeViewCount" class="muted">1 of 2 views</span></div>
@@ -147,7 +150,10 @@
 
   <section id="shop" class="panel hidden">
     <h2>Questionable decisions shop</h2>
-    <div id="shopRoomPicker" class="decor-room-picker" role="group" aria-label="Choose a collection to shop"></div>
+    <div class="decor-room-dropdown">
+      <label for="shopRoomSelect">Shop for a room</label>
+      <select id="shopRoomSelect" aria-label="Choose a room's collectibles"></select>
+    </div>
     <p class="muted">Every purchase is permanent. Prices reflect detail, rarity and how much it will annoy Axel.</p>
     <p id="wishlist" class="wishlist" aria-live="polite">☆ Pick an item to save up for.</p>
     <div id="catalog"></div>
