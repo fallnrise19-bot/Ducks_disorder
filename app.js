@@ -3,6 +3,7 @@
 "use strict";
 const DATA = window.GAME_DATA;
 const PLACE = window.OFFICE_PLACEMENT;
+const AXEL = window.AXEL_REACTIONS;
 const PACKING_ROOMS = Array.isArray(window.DUCKS_PACKING_ROOMS) ? [...window.DUCKS_PACKING_ROOMS].sort((a,b)=>a.priority-b.priority) : [];
 const PHASES = {now:0,final:1,moving:2};
 const KEY = "ducks-disorder-v1";
@@ -40,7 +41,7 @@ function weekKey() {
 }
 function defaults() {
   return {
-    coins:0, totalEarned:0, owned:[], placements:{}, history:[], custom:[], wishlist:null,
+    coins:0, totalEarned:0, owned:[], placements:{}, axelReactions:[], history:[], custom:[], wishlist:null,
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
@@ -56,6 +57,7 @@ function normalize(raw) {
   s.totalEarned=validNum(raw.totalEarned===undefined?raw.earned||raw.coins:raw.totalEarned);
   s.owned=Array.isArray(raw.owned)?[...new Set(raw.owned.filter(id=>DATA.items.some(item=>item.id===id)))]:[];
   s.placements=PLACE.restore(s.owned,raw.placements);
+  s.axelReactions=AXEL.clean(raw.axelReactions,s.owned);
   s.history=Array.isArray(raw.history)?raw.history.filter(h=>h&&typeof h.id==="string").slice(-250):[];
   s.custom=Array.isArray(raw.custom)?raw.custom.filter(t=>t&&typeof t.name==="string"&&t.name.trim()).slice(0,50).map(t=>({
     id:typeof t.id==="string"?t.id:"custom-"+Date.now(),
@@ -164,6 +166,8 @@ function purchase(item) {
   state.coins-=item.cost;
   state.placements[item.id]=PLACE.choose(item,new Set(Object.values(state.placements)),true);
   state.owned.push(item.id);
+  // The last comment stays visible after reopening; every comment ID is consumed once.
+  state.axelReactions.push(AXEL.pick(item,state.owned.length,state.axelReactions));
   justPurchased=item.id;
   save();show("rooms");
   flash(item.name+" has landed in Axel's office.");
@@ -371,6 +375,12 @@ function renderRoom() {
   const latest=DATA.items.find(i=>i.id===justPurchased);
   $("roomReveal").hidden=!latest;
   $("roomReveal").textContent=latest?"New arrival: "+latest.name+". Can you spot it? 👀":"";
+  const comment=state.axelReactions[state.axelReactions.length-1];
+  const reactionBox=$("axelReaction");
+  reactionBox.hidden=!comment;
+  reactionBox.className="axel-reaction"+(comment&&comment.itemId===justPurchased?" axel-reaction-new":"");
+  $("axelReactionSubject").textContent=comment?"RE: "+comment.itemName:"";
+  $("axelReactionText").textContent=comment?comment.text:"";
 }
 function renderProgress() {
   const total=Object.values(state.boxCounts).reduce((a,b)=>a+b,0);
