@@ -39,7 +39,7 @@ public class MainActivity extends Activity {
             }
             @Override public void onPageFinished(WebView view, String url) {
                 if (getIntent().getBooleanExtra("open_life", false)) {
-                    view.evaluateJavascript("window.ducks && window.ducks.show('tasks');", null);
+                    view.evaluateJavascript("window.ducks && window.ducks.show('life');", null);
                     getIntent().removeExtra("open_life");
                 }
             }
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
         super.onNewIntent(intent);
         setIntent(intent);
         if (intent.getBooleanExtra("open_life", false) && webView != null) {
-            webView.evaluateJavascript("window.ducks && window.ducks.show('tasks');", null);
+            webView.evaluateJavascript("window.ducks && window.ducks.show('life');", null);
             intent.removeExtra("open_life");
         }
     }
