@@ -35,3 +35,30 @@ textarea{display:block;width:100%;min-height:120px;background:#121a28;color:whit
 #backupBtn,#restoreToggle,#reminderBtn{margin:6px 6px 6px 0}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:min(92vw,460px);padding:14px 18px;border:1px solid #80c9b8;border-radius:14px;background:#253e3a;color:white;text-align:center;z-index:15;box-shadow:0 4px 20px #0008}
 @media(max-width:460px){main{padding:12px}.panel{padding:13px}.item{padding:10px}.item button{padding:10px}header h1{font-size:23px}.wallet{font-size:16px;padding:11px}nav button{font-size:11px;padding:11px 3px}.stack button{min-width:125px}.card{padding:12px}}
+
+/* Real room packing director, ported from user's original house plan. */
+.mission-card{background:linear-gradient(145deg,#292a30,#201f26);border-color:#705a46}
+.house-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.house-card-top h3{font-size:clamp(22px,4.4vw,30px);margin:8px 0 5px;line-height:1.18}
+.choose-for-me{background:#805b42;border:1px solid #a77e60;white-space:nowrap;padding:14px 13px;min-height:52px}
+.house-notes{color:#d9c4ae;font-size:13px;line-height:1.5}
+.house-note{margin:7px 0}
+.house-picker{display:flex;gap:8px;overflow-x:auto;margin:16px -2px;padding:4px 2px 13px;scrollbar-width:thin;scrollbar-color:#8a6856 transparent}
+.house-picker button{white-space:nowrap;flex:none;border:1px solid #6a5d56;background:#302a2d;padding:12px 14px}
+.house-picker button.selected{background:#6c4b32;border-color:#d6a16a;color:#fff1dd}
+.house-mission{background:linear-gradient(140deg,#433229,#30282a);border:1px solid #99704f;padding:18px;border-radius:16px;margin:12px 0 14px}
+.house-mission h3{font-size:clamp(19px,5vw,25px);line-height:1.25;margin:17px 0 12px}
+.house-mission p{font-size:15px;line-height:1.5;margin:0 0 14px;color:#d8c8be}
+.mission-top{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.mission-top .eyebrow{color:#e9b68a;letter-spacing:.08em}
+.mission-pay{border-radius:30px;white-space:nowrap;background:#6e6040;padding:8px 11px;color:#fff2d9;font-weight:800;font-size:14px}
+.mission-flag{font-size:11px;letter-spacing:.07em;color:#e0b486}
+.wide{width:100%;min-height:56px;font-size:17px}
+.two-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:11px 0}
+.two-actions button{min-width:0;min-height:47px}
+.packing-boundary{font-size:13px;color:#b8aaa3;line-height:1.55;padding-top:14px;border-top:1px solid #5a4d4b;margin-top:16px}
+.phase-picker{display:flex;flex-wrap:wrap;gap:8px}
+.phase-picker button{flex:1;min-width:95px;background:#343c50;border:1px solid #5e6881;padding:10px}
+.phase-picker button.selected{background:#6d4e35;color:#fff1e6;border-color:#c18c60}
+#restoreHiddenBtn{margin:0 0 6px}
+@media(max-width:440px){.choose-for-me{font-size:13px;padding:12px 10px}.house-mission{padding:14px}.house-card-top h3{font-size:23px}.house-picker button{font-size:13px}}
