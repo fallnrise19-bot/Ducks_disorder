@@ -4,6 +4,9 @@
 const DATA = window.GAME_DATA;
 const PLACE = window.OFFICE_PLACEMENT;
 const OFFICE = window.OFFICE_LAYOUT;
+const KITCHEN = window.KITCHEN_LAYOUT;
+const KPLACE = window.KITCHEN_PLACEMENT;
+const DECOR_ROOMS=[{id:"F-011",name:"Axel\'s Office",icon:"🗃️"},{id:"F-006",name:"Kitchen",icon:"🍕"}];
 const AXEL = window.AXEL_REACTIONS;
 const PACKING_ROOMS = Array.isArray(window.DUCKS_PACKING_ROOMS) ? [...window.DUCKS_PACKING_ROOMS].sort((a,b)=>a.priority-b.priority) : [];
 const PHASES = {now:0,final:1,moving:2};
@@ -42,7 +45,7 @@ function weekKey() {
 }
 function defaults() {
   return {
-    coins:0, totalEarned:0, owned:[], placements:{}, officeLayoutVersion:PLACE.layoutVersion, officeView:"desk", axelReactions:[], history:[], custom:[], wishlist:null,
+    coins:0, totalEarned:0, owned:[], placements:{}, officeLayoutVersion:PLACE.layoutVersion, officeView:"desk", kitchenLayoutVersion:KPLACE.layoutVersion, kitchenView:"island", decorRoom:"F-011", shopRoom:"F-011", axelReactions:[], history:[], custom:[], wishlist:null,
     boxSize:"small", boxes:{small:0,medium:0,large:0},
     boxCounts:{small:0,medium:0,large:0},
     promptIndex:0, view:"tasks",
@@ -57,13 +60,22 @@ function normalize(raw) {
   s.coins=validNum(raw.coins);
   s.totalEarned=validNum(raw.totalEarned===undefined?raw.earned||raw.coins:raw.totalEarned);
   s.owned=Array.isArray(raw.owned)?[...new Set(raw.owned.filter(id=>DATA.items.some(item=>item.id===id)))]:[];
-  // One-time layout upgrade: fix floating and overlapping old props, and
-  // spread existing purchases across both real office photographs.
-  // Inventory, coins, box rewards and dialogue history are untouched.
-  const oldLayout=Number(raw.officeLayoutVersion)||0;
-  s.placements=PLACE.restore(s.owned,raw.placements,{reflow:oldLayout<PLACE.layoutVersion});
+  // Keep both collections and every saved item. Migrate office placements only
+  // with the office engine, and kitchen props only with the kitchen engine.
+  const oldOfficeLayout=Number(raw.officeLayoutVersion)||0;
+  const oldKitchenLayout=Number(raw.kitchenLayoutVersion)||0;
+  const officeOwned=s.owned.filter(id=>DATA.items.some(item=>item.id===id&&item.room==="F-011"));
+  const kitchenOwned=s.owned.filter(id=>DATA.items.some(item=>item.id===id&&item.room==="F-006"));
+  s.placements={
+    ...PLACE.restore(officeOwned,raw.placements,{reflow:oldOfficeLayout<PLACE.layoutVersion}),
+    ...KPLACE.restore(kitchenOwned,raw.placements,{reflow:oldKitchenLayout<KPLACE.layoutVersion})
+  };
   s.officeLayoutVersion=PLACE.layoutVersion;
+  s.kitchenLayoutVersion=KPLACE.layoutVersion;
   s.officeView=OFFICE.views.some(v=>v.id===raw.officeView)?raw.officeView:OFFICE.views[0].id;
+  s.kitchenView=KITCHEN.views.some(v=>v.id===raw.kitchenView)?raw.kitchenView:KITCHEN.views[0].id;
+  s.decorRoom=DECOR_ROOMS.some(r=>r.id===raw.decorRoom)?raw.decorRoom:"F-011";
+  s.shopRoom=DECOR_ROOMS.some(r=>r.id===raw.shopRoom)?raw.shopRoom:"F-011";
   s.axelReactions=AXEL.clean(raw.axelReactions,s.owned);
   s.history=Array.isArray(raw.history)?raw.history.filter(h=>h&&typeof h.id==="string").slice(-250):[];
   s.custom=Array.isArray(raw.custom)?raw.custom.filter(t=>t&&typeof t.name==="string"&&t.name.trim()).slice(0,50).map(t=>({
@@ -170,17 +182,29 @@ function claimRoutine(r) {
 }
 function purchase(item) {
   if(state.owned.includes(item.id)||state.coins<item.cost)return;
+  const kitchen=item.room==="F-006";
+  const engine=kitchen?KPLACE:PLACE;
   state.coins-=item.cost;
-  state.placements[item.id]=PLACE.choose(item,state.placements,true);
-  // Open whichever photo contains the surprise, including the boardroom side.
-  const newSpot=PLACE.spot(state.placements[item.id]);
-  if(newSpot)state.officeView=newSpot.view||OFFICE.views[0].id;
+  state.placements[item.id]=engine.choose(item,state.placements,true);
+  const location=engine.spot(state.placements[item.id]);
+  state.decorRoom=item.room;
+  state.shopRoom=item.room;
+  if(location) {
+    if(kitchen)state.kitchenView=location.view||"island";
+    else state.officeView=location.view||OFFICE.views[0].id;
+  }
   state.owned.push(item.id);
-  // The last comment stays visible after reopening; every comment ID is consumed once.
-  state.axelReactions.push(AXEL.pick(item,state.owned.length,state.axelReactions));
+  let reaction=AXEL.pick(item,state.owned.length,state.axelReactions);
+  // Axel is aware when the kitchen becomes Mira's second trouble zone.
+  if(kitchen) reaction.text=reaction.text
+    .replace(/my office/gi,"the kitchen").replace(/this office/gi,"this kitchen")
+    .replace(/the office/gi,"the kitchen").replace(/my desk/gi,"the island")
+    .replace(/the desk/gi,"the island").replace(/my furniture/gi,"the counters")
+    .replace(/my shelves/gi,"the cupboards");
+  state.axelReactions.push(reaction);
   justPurchased=item.id;
   save();show("rooms");
-  flash(item.name+" has landed in Axel's office.");
+  flash(item.name+" has appeared in "+(kitchen?"the kitchen":"Axel's office")+".");
 }
 function node(tag,cls,text) {
   const el=document.createElement(tag);
@@ -333,17 +357,24 @@ function renderLife() {
     "Off • Optional phone reminders for water, meals, dishwasher, Sunday laundry and Tuesday garbage.";
 }
 function renderShop() {
+  const picker=$("shopRoomPicker");picker.replaceChildren();
+  for(const room of DECOR_ROOMS){
+    const button=node("button",state.shopRoom===room.id?"selected":"",room.icon+" "+room.name);
+    button.setAttribute("aria-pressed",String(state.shopRoom===room.id));
+    button.addEventListener("click",()=>{state.shopRoom=room.id;save();renderShop();});
+    picker.append(button);
+  }
   const wish=DATA.items.find(x=>x.id===state.wishlist);
   $("wishlist").textContent=!wish?"☆ Pick an item as your savings goal.":
     state.owned.includes(wish.id)?"★ Goal achieved: "+wish.name+"!":
     "★ Saving for "+wish.name+" • "+Math.max(0,wish.cost-state.coins)+" coins to go • about "+Math.ceil(Math.max(0,wish.cost-state.coins)/175)+" large boxes";
   const cat=$("catalog");cat.replaceChildren();
-  for(const item of DATA.items) {
+  for(const item of DATA.items.filter(i=>i.room===state.shopRoom)) {
     const owned=state.owned.includes(item.id);
     const el=node("div","item shop-item");
     const info=node("div","shop-info");
     const thumbnail=node("img","shop-thumb");
-    thumbnail.src="collectibles/"+item.asset;
+    thumbnail.src=(item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
     thumbnail.alt="";
     thumbnail.loading="lazy";
     const copy=node("div","shop-copy");
@@ -361,33 +392,50 @@ function renderShop() {
   }
 }
 
-function officeView() {
-  return OFFICE.views.find(view=>view.id===state.officeView)||OFFICE.views[0];
+function decorLayout(){return state.decorRoom==="F-006"?KITCHEN:OFFICE;}
+function decorEngine(){return state.decorRoom==="F-006"?KPLACE:PLACE;}
+function decorViewKey(){return state.decorRoom==="F-006"?"kitchenView":"officeView";}
+function officeView(){
+  const layout=decorLayout(),selected=state[decorViewKey()];
+  return layout.views.find(v=>v.id===selected)||layout.views[0];
 }
-function selectOfficeView(id) {
-  if(!OFFICE.views.some(view=>view.id===id))return;
-  state.officeView=id;
-  save();
-  renderRoom();
+function selectDecorRoom(id){
+  if(!DECOR_ROOMS.some(room=>room.id===id))return;
+  state.decorRoom=id;save();renderRoom();
 }
-function stepOfficeView(step) {
-  const index=OFFICE.views.findIndex(view=>view.id===state.officeView);
-  const next=(Math.max(0,index)+step+OFFICE.views.length)%OFFICE.views.length;
-  selectOfficeView(OFFICE.views[next].id);
+function selectOfficeView(id){
+  const layout=decorLayout();
+  if(!layout.views.some(view=>view.id===id))return;
+  state[decorViewKey()]=id;save();renderRoom();
+}
+function stepOfficeView(step){
+  const layout=decorLayout();
+  const index=layout.views.findIndex(view=>view.id===state[decorViewKey()]);
+  selectOfficeView(layout.views[(Math.max(0,index)+step+layout.views.length)%layout.views.length].id);
 }
 function renderRoom() {
-  const view=officeView();
+  const layout=decorLayout(),engine=decorEngine(),view=officeView();
+  const room=DECOR_ROOMS.find(r=>r.id===state.decorRoom);
+  $("decorRoomHeading").textContent=room.name+" · "+room.id;
+  const picker=$("decorRoomPicker");picker.replaceChildren();
+  for(const option of DECOR_ROOMS){
+    const b=node("button",option.id===state.decorRoom?"selected":"",option.icon+" "+option.name);
+    b.setAttribute("aria-pressed",String(option.id===state.decorRoom));
+    b.addEventListener("click",()=>selectDecorRoom(option.id));
+    picker.append(b);
+  }
   const photo=$("officePhoto");
-  if(photo.dataset.viewId!==view.id){
-    photo.src=view.image;
-    photo.dataset.viewId=view.id;
+  if(photo.dataset.viewId!==(room.id+":"+view.id)){
+    photo.src=view.image;photo.dataset.viewId=room.id+":"+view.id;
   }
   photo.alt=view.alt;
   $("officeViewTitle").textContent=view.name;
-  const viewIndex=OFFICE.views.findIndex(x=>x.id===view.id);
-  $("officeViewCount").textContent=(viewIndex+1)+" of "+OFFICE.views.length+" views";
+  const viewIndex=layout.views.findIndex(x=>x.id===view.id);
+  $("officeViewCount").textContent=(viewIndex+1)+" of "+layout.views.length+" views";
+  $("officePrevView").disabled=layout.views.length<=1;
+  $("officeNextView").disabled=layout.views.length<=1;
   const dots=$("officeViewDots");dots.replaceChildren();
-  for(const candidate of OFFICE.views) {
+  for(const candidate of layout.views){
     const dot=node("button",candidate.id===view.id?"office-dot active":"office-dot","●");
     dot.title=candidate.name;
     dot.setAttribute("type","button");
@@ -397,34 +445,31 @@ function renderRoom() {
     dots.append(dot);
   }
   const board=$("placements");board.replaceChildren();
-  for(const item of DATA.items.filter(item=>state.owned.includes(item.id))) {
-    const spot=PLACE.spot(state.placements[item.id]);
-    if(!spot || (spot.view||OFFICE.views[0].id)!==view.id)continue;
+  const roomItems=DATA.items.filter(item=>item.room===state.decorRoom);
+  for(const item of roomItems.filter(item=>state.owned.includes(item.id))){
+    const spot=engine.spot(state.placements[item.id]);
+    if(!spot || (spot.view||layout.views[0].id)!==view.id)continue;
     const prop=node("span","prop prop-"+spot.zone+(item.id===justPurchased?" prop-arrival":""));
     const image=node("img","prop-art");
-    image.src="collectibles/"+item.asset;
-    image.alt=item.name;
-    image.draggable=false;
-    image.loading="lazy";
-    prop.append(image);
-    prop.title=item.name;
-    prop.style.left=(spot.x*100)+"%";
-    prop.style.top=(spot.y*100)+"%";
-    // Artwork is scaled against the real perspective of its surface.
-    const footprint=PLACE.bounds(item,spot);
+    image.src=(item.room==="F-006"?"kitchen/":"collectibles/")+item.asset;
+    image.alt=item.name;image.draggable=false;image.loading="lazy";
+    prop.append(image);prop.title=item.name;
+    prop.style.left=(spot.x*100)+"%";prop.style.top=(spot.y*100)+"%";
+    const footprint=engine.bounds(item,spot);
     prop.style.width=(footprint?footprint.w*100:3)+"%";
     prop.setAttribute("role","img");
     prop.setAttribute("aria-label",item.name);
     prop.addEventListener("click",()=>flash(item.name));
     board.append(prop);
   }
-  $("roomCount").textContent=state.owned.length+" / "+DATA.items.length+" collectibles placed";
-  const latest=DATA.items.find(i=>i.id===justPurchased);
-  const latestSpot=latest?PLACE.spot(state.placements[latest.id]):null;
-  const latestHere=!!(latestSpot&&(latestSpot.view||OFFICE.views[0].id)===view.id);
+  const roomOwned=roomItems.filter(item=>state.owned.includes(item.id)).length;
+  $("roomCount").textContent=roomOwned+" / "+roomItems.length+" collectibles placed";
+  const latest=DATA.items.find(i=>i.id===justPurchased&&i.room===state.decorRoom);
+  const latestSpot=latest?engine.spot(state.placements[latest.id]):null;
+  const latestHere=!!(latestSpot&&(latestSpot.view||layout.views[0].id)===view.id);
   $("roomReveal").hidden=!latestHere;
   $("roomReveal").textContent=latestHere?"New arrival: "+latest.name+". Can you spot it? 👀":"";
-  const comment=state.axelReactions[state.axelReactions.length-1];
+  const comment=[...state.axelReactions].reverse().find(x=>DATA.items.some(i=>i.id===x.itemId&&i.room===state.decorRoom));
   const reactionBox=$("axelReaction");
   reactionBox.hidden=!comment;
   reactionBox.className="axel-reaction"+(comment&&comment.itemId===justPurchased?" axel-reaction-new":"");
