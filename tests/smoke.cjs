@@ -58,7 +58,14 @@ vm.runInNewContext(placement,context,{filename:"office-placement.js"});
 const run=()=>vm.runInNewContext(app,{...context},{filename:"app.js"});
 const state=()=>JSON.parse(memory.get("ducks-disorder-v1"));
 run();
-assert.equal(window.GAME_DATA.items.length,20);
+assert.equal(window.GAME_DATA.items.length,40,"restored and expanded Mira-themed shop");
+for(const item of window.GAME_DATA.items){
+  assert.ok(item.asset&&item.asset.endsWith(".png"),"real PNG assigned to "+item.id);
+  const file=path.join(root,"collectibles",item.asset);
+  assert.ok(fs.existsSync(file),"offline art is bundled: "+item.asset);
+  assert.equal(fs.readFileSync(file).subarray(1,4).toString(),"PNG","asset is a real PNG: "+item.asset);
+}
+assert.equal(elements.catalog.children[0].children[0].children[0].src,"collectibles/duck_tactical.png","real art shown in shop");
 assert.equal(window.DUCKS_PACKING_ROOMS.length,10,"all ten original house rooms restored");
 assert.equal(elements.housePicker.children.length,10,"room picker displays ten rooms");
 assert.equal(state().houseRoom,"basement","priority-one basement selected first");
@@ -124,6 +131,8 @@ assert.equal(state().placements[item.id],firstSpot,"same spot survives restart")
 assert.equal(new Set(Object.values(state().placements)).size,state().owned.length,"saved placements never collide");
 assert.deepEqual(state().owned,[item.id,secondItem.id],"collectible ownership survives restart");
 assert.equal(elements.placements.children.length,2,"both purchased props appear in the original office");
+assert.equal(elements.placements.children[0].children[0].src,"collectibles/duck_tactical.png","purchased object uses actual PNG instead of emoji");
+assert.equal(elements.placements.children[1].children[0].src,"collectibles/black_duck.png","second object uses actual PNG");
 assert.equal(state().houseDone["k-upper"],1,"mission completion survives restart");
 assert.equal(state().houseRoom,"kitchen","selected room survives restart");
 console.log("Ducks & Disorder smoke tests passed.");
